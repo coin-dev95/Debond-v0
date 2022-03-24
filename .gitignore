@@ -1,2 +1,6 @@
-APM
-node_modules
+artifacts/
+node_modules/
+.DS_Store
+.vscode
+.env
+build/
