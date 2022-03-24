@@ -20,10 +20,6 @@ import "../Libraries/SafeMath.sol";
 contract APM {
     using SafeMath for uint256;
 
-    // ratio factors r_{tA (tB)} of a pair
-	mapping(address => mapping(address => uint256[2])) internal ratio;
-	// price P(tA, tB)
-	mapping(address => mapping(address => uint256)) internal price;
 	// token reserve L(tA)
 	mapping(address => uint256[2]) internal reserve;
 
@@ -63,11 +59,11 @@ contract APM {
         (reserve0, reserve1) = (reserve[_token0][0], reserve[_token1][0]);
     }
 
-    function getRatio(address token0, address token1) external returns(uint256 ratioReturned) {
+    function getRatio(address token0, address token1) external returns(uint256 previousRatio, uint256 ratio) {
 
     }
 
-    function getPrice(address _token0, address _token1) external returns(uint256 priceReturned) {
+    function getPrice(address _token0, address _token1) external returns(uint256 price) {
 
     }
     
