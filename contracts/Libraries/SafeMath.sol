@@ -49,9 +49,6 @@ library SafeMath {
         return a % b;
     }
 
-
-
-
     function ln(uint256 x) public pure returns (uint256 result) {
         // Do the fixed-point multiplication inline to save gas. This is overflow-safe because the maximum value that log2(x)
         // can return is 196205294292027477728.

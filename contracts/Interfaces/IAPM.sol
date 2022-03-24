@@ -44,17 +44,22 @@ interface IAPM {
     function getRatio( 
 		address token0,
 		address token1
-	) external;
+	) external returns(uint256);
 
     function getPrice( 
 		address token0,
 		address token1
-	) external;
+	) external returns(uint256);
 
-    function updateReserve(
+    function updateReserves(
         address token0,
         address token1,
         uint256 amount0,
         uint256 amount1
     ) external;
+
+    function getReserves(
+        address token0,
+        address token1
+    ) external view returns(uint256 reserve0, uint256 reserve1);
 }

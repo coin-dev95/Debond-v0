@@ -20,18 +20,55 @@ import "../Libraries/SafeMath.sol";
 contract APM {
     using SafeMath for uint256;
 
-    mapping(address => uint256[2]) internal reserve;
+    // ratio factors r_{tA (tB)} of a pair
+	mapping(address => mapping(address => uint256[2])) internal ratio;
+	// price P(tA, tB)
+	mapping(address => mapping(address => uint256)) internal price;
+	// token reserve L(tA)
+	mapping(address => uint256[2]) internal reserve;
 
     /**
     * @dev update revserve of a token pair when adding or removing liquidity
-    * @param token0 address of the first token
-    * @param token1 address of the second token
+    * @param _token0 address of the first token
+    * @param _token1 address of the second token
+    * @param _amount0 amount of first tokens to add
+    * @param _amount1 amount of second tokens to add
+    * @dev @Edoumou
     */
-    function updateReserve(address token0, address token1, uint256 amount0, uint256 amount1) external {
-		uint256 _reserve0 = reserve[token0][1];
-		uint256 _reserve1 = reserve[token1][1];
+    function updateReserves(address _token0, address _token1, uint256 _amount0, uint256 _amount1) external {
+		uint256 _reserve0 = reserve[_token0][1];
+		uint256 _reserve1 = reserve[_token1][1];
 
-		(reserve[token0][0], reserve[token1][0]) = (_reserve0, _reserve1);
-		(reserve[token0][1], reserve[token1][1]) = (_reserve0.add(amount0), _reserve1.add(amount1));
+		(reserve[_token0][0], reserve[_token1][0]) = (_reserve0, _reserve1);
+		(reserve[_token0][1], reserve[_token1][1]) = (_amount0, _amount1);
 	}
+
+    /**
+    * @dev get revserve of a token pair
+    * @param _token0 address of the first token
+    * @param _token1 address of the second token
+    * @dev @Edoumou
+    */
+    function getReserves(address _token0, address _token1) external view returns(uint256 reserve0, uint256 reserve1) {
+        (reserve0, reserve1) = (reserve[_token0][1], reserve[_token1][1]);
+    }
+
+    /**
+    * @dev get previous revserve of a token pair
+    * @param _token0 address of the first token
+    * @param _token1 address of the second token
+    * @dev @Edoumou
+    */
+    function getPreviousReserves(address _token0, address _token1) external view returns(uint256 reserve0, uint256 reserve1) {
+        (reserve0, reserve1) = (reserve[_token0][0], reserve[_token1][0]);
+    }
+
+    function getRatio(address token0, address token1) external returns(uint256 ratioReturned) {
+
+    }
+
+    function getPrice(address _token0, address _token1) external returns(uint256 priceReturned) {
+
+    }
+    
 }
