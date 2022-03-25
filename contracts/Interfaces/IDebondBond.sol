@@ -1,4 +1,5 @@
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.9;
+
 
 // SPDX-License-Identifier: apache 2.0
 /*
@@ -13,7 +14,9 @@ pragma solidity ^0.8.0;
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import "erc-3475/contracts/IERC3475.sol";
+
+import "./Interfaces/IERC3475.sol";
+
 
 
 
@@ -31,4 +34,6 @@ interface IDebondBond is IERC3475 {
 
     function isActive() external returns (bool);
 
+
 }
+
