@@ -290,7 +290,4 @@ contract DebondBond is IDebondBond, AccessControl {
         classes[classId].nonces[nonceId]._activeSupply -= amount;
         classes[classId].nonces[nonceId]._burnedSupply += amount;
     }
-
-    function 
-
 }
