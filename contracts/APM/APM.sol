@@ -70,5 +70,48 @@ contract APM {
     function getPrices(address token0, address token1) external view returns(uint256) {
 		return price[token0][token1];
 	}
+
+    function updateRatioFactor( 
+		address token0,
+		address token1,
+		uint256 amount0,
+		uint256 amount1
+	) public returns(uint256 ratio01, uint256 ratio10) {
+		uint256[2] memory _ratio01 = ratio[token0][token1];  // gas savings
+		uint256[2] memory _ratio10 = ratio[token1][token0]; // gas savings
+		uint256 _reserve0 = reserve[token0][1];
+		uint256 _reserve1 = reserve[token1][1];
+
+		reserve[token0][0] = _reserve0;
+		reserve[token1][0] = _reserve1;
+
+		uint256 numerator0 = ((_ratio01[0].mul0(_reserve0)) / (1 ether)).add(amount0);
+		uint256 numerator1 = ((_ratio10[0].mul0(_reserve1)) / (1 ether)).add(amount1);
+
+		ratio[token0][token1][1] = numerator0.div(( (_reserve0.add(amount0)) / (1 ether)));
+		ratio[token1][token0][1] = numerator1.div(( (_reserve1.add(amount1)) / (1 ether)));
+
+		reserve[token0][1] = _reserve0.add(amount0);
+		reserve[token1][1] = _reserve1.add(amount1);
+
+		return (ratio[token0][token1][1], ratio[token1][token0][1]);
+	}
+
+    function updatePrice(address token0, address token1) public returns(uint256 price0, uint256 price1) {
+		uint256[2] memory _ratio01 = ratio[token0][token1];  // gas savings
+		uint256[2] memory _ratio10 = ratio[token1][token0]; // gas savings
+		uint256 _reserve0 = reserve[token0][1];
+		uint256 _reserve1 = reserve[token1][1];
+
+		uint256 denominator0 = _ratio01[0].mul0(reserve[token0][1]).div(1 ether);
+		uint256 denominator1 = _ratio10[0].mul0(reserve[token1][1]).div(1 ether);
+
+		price[token0][token1] = _ratio10[1].mul0(_reserve0).div(denominator0);
+		price[token1][token0] = _ratio01[1].mul0(_reserve1).div(denominator1);
+
+		return (price[token0][token1], price[token1][token0]);
+	}
+
+
     
 }
