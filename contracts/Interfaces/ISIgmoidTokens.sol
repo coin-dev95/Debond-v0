@@ -21,11 +21,7 @@ interface ISigmoidToken {
 
     function allocatedSupply() external view returns (uint256);
 
-   
-
     function setBankContract(address bank_address) external returns (bool);
-
-   
 
     function mintAllocation(address _to, uint256 _amount)
         external
@@ -36,6 +32,6 @@ interface ISigmoidToken {
         address _to,
         uint256 _amount
     ) external returns (bool);
-// locking and unlocking tokens used for the governance 
-    
+
+
 }

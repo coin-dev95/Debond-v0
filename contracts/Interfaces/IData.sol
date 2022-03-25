@@ -1,5 +1,4 @@
-pragma solidity ^0.8.9;
-
+pragma solidity >=0.8.4;
 
 // SPDX-License-Identifier: apache 2.0
 /*
@@ -15,25 +14,23 @@ pragma solidity ^0.8.9;
     limitations under the License.
 */
 
-import "./Interfaces/IERC3475.sol";
+interface IData {
 
+    enum InterestRateType {FixedRate, FloatingRate}
 
+    function updateTokenAllowed(
+        address tokenA,
+        address tokenB,
+        bool allowed
+    ) external;
 
+    function updateClassIdToClass(uint classId, uint period, address tokenAddress, string symbol, InterestRateType interestRateType) external;
 
-interface IDebondBond is IERC3475 {
+    function isPairAllowed(
+        address tokenA,
+        address tokenB) external view returns (bool);
 
-    enum InterestRateType { FixedRate, FloatingRate }
-
-    function createNonce(uint256 classId, uint256 nonceId, uint256 maturityTime, uint256 liqT) external;
-
-    function createClass(uint256 classId, string memory symbol, InterestRateType interestRateType, address tokenAddress, uint256 periodTimestamp) external;
-
-    function classExists(uint256 classId) external returns (bool);
-
-    function nonceExists(uint256 classId, uint256 nonceId) external returns (bool);
-
-    function isActive() external returns (bool);
-
-
+    function classIdToInfos(
+        uint classId
+    ) external view returns(uint period, address tokenAddress, string symbol, InterestRateType interestRateType);
 }
-

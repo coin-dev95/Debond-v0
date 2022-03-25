@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 
 import "./Interfaces/IERC3475.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "./Interfaces/IDebondBond.sol";
+import "../Interfaces/IDebondBond.sol";
 
 
 contract DebondBond is IDebondBond, AccessControl {
@@ -290,13 +290,4 @@ contract DebondBond is IDebondBond, AccessControl {
         classes[classId].nonces[nonceId]._activeSupply -= amount;
         classes[classId].nonces[nonceId]._burnedSupply += amount;
     }
-
-
-
-
-    function bondisRedeemable(uint256 classId, uint256 nonceId) public view returns (bool) {
-        return true;
-    }
-
 }
-

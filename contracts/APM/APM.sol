@@ -17,9 +17,9 @@ pragma solidity 0.8.13;
 import "../Interfaces/IAPM.sol";
 import "../Libraries/SafeMath.sol";
 
-contract APM {
-    using SafeMath for uint256;
 
+contract APM is IAPM {
+    using SafeMath for uint256;
     // ratio factors r_{tA (tB)} of a pair
 	mapping(address => mapping(address => uint256[2])) internal ratio;
 	// price P(tA, tB) in a pair
@@ -62,6 +62,8 @@ contract APM {
     function getPreviousReserves(address _token0, address _token1) external view returns(uint256 reserve0, uint256 reserve1) {
         (reserve0, reserve1) = (reserve[_token0][0], reserve[_token1][0]);
     }
+
+
 
     function getRatios(address token0, address token1) external view returns(uint256 previousRatio, uint256 currentRatio) {
 		return (ratio[token0][token1][0], ratio[token0][token1][1]);
@@ -115,3 +117,4 @@ contract APM {
 
     
 }
+
