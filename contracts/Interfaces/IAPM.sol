@@ -51,6 +51,18 @@ interface IAPM {
 		address token1
 	) external returns(uint256 price);
 
+    function updateRatioFactor( 
+		address token0,
+		address token1,
+		uint256 amount0,
+		uint256 amount1
+	) external returns(uint256 ratio01, uint256 ratio10);
+
+    function updatePrice(
+        address token0,
+        address token1
+    ) external returns(uint256 price0, uint256 price1);
+
     function updateReserves(
         address token0,
         address token1,
