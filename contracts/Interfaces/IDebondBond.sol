@@ -15,7 +15,7 @@ pragma solidity ^0.8.9;
     limitations under the License.
 */
 
-import "./Interfaces/IERC3475.sol";
+import "./IERC3475.sol";
 
 
 

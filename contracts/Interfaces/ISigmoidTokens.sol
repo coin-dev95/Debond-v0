@@ -1,5 +1,7 @@
 pragma solidity ^0.8.9;
 
+import "./IERC20.sol";
+
 // SPDX-License-Identifier: apache 2.0
 /*
     Copyright 2020 Sigmoid Foundation <info@SGM.finance>
@@ -14,7 +16,7 @@ pragma solidity ^0.8.9;
     limitations under the License.
 */
 
-interface ISigmoidToken {
+interface ISigmoidToken is IERC20 {
     function isActive() external view returns (bool);
 
     function maximumSupply() external view returns (uint256);

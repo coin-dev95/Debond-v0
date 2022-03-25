@@ -25,7 +25,7 @@ import './ERC20.sol';
 import "../Interfaces/IAPM.sol";
 import "../Interfaces/IData.sol";
 import "../Interfaces/IDebondBond.sol";
-import "../Interfaces/IDebondToken.sol";
+import "../Interfaces/ISigmoidTokens.sol";
 import "../Libraries/CDP.sol";
 
 
@@ -76,7 +76,7 @@ contract Bank  {  //is IBank  remove data here and do functions  , IAPM
 
         //approval?
         IERC20(tokentoAdd).transferFrom(msg.sender, address(apm), amountA);  //see uniswap : transferhelper,ierc202
-        IDebondToken(tokenToMint).mint(address(apm), amountBToMint); // be aware that tokenB is a DebondToken, maybe add it to the class model
+        ISigmoidToken(tokenToMint).mint(address(apm), amountBToMint); // be aware that tokenB is a DebondToken, maybe add it to the class model
 
         //check tomorrow why it works while I don't have these tokens
 
