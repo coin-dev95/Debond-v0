@@ -7,7 +7,6 @@ import "./Interfaces/IERC3475.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./Interfaces/IDebondBond.sol";
 
-
 contract DebondBond is IDebondBond, AccessControl {
 
     bytes32 public constant ISSUER_ROLE = keccak256("ISSUER_ROLE");
@@ -291,6 +290,10 @@ contract DebondBond is IDebondBond, AccessControl {
         classes[classId].nonces[nonceId]._burnedSupply += amount;
     }
 
-    function 
+    function bondisRedeemable(uint256 classId, uint256 nonceId) public view returns (bool) {
+        
+
+
+    }
 
 }

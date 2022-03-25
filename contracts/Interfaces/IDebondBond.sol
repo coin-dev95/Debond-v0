@@ -13,29 +13,22 @@ pragma solidity ^0.8.9;
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+import "./IERC3475.sol";
 
-interface ISigmoidToken {
-    function isActive() external view returns (bool);
 
-    function maximumSupply() external view returns (uint256);
 
-    function allocatedSupply() external view returns (uint256);
+interface IDebondBond is IERC3475 {
 
-   
+    enum InterestRateType { FixedRate, FloatingRate }
 
-    function setBankContract(address bank_address) external returns (bool);
+    function createNonce(uint256 classId, uint256 nonceId, uint256 maturityTime, uint256 liqT) external;
 
-   
+    function createClass(uint256 classId, string memory symbol, InterestRateType interestRateType, address tokenAddress, uint256 periodTimestamp) external;
 
-    function mintAllocation(address _to, uint256 _amount)
-        external
-        returns (bool);
- 
-    function bankTransfer(
-        address _from,
-        address _to,
-        uint256 _amount
-    ) external returns (bool);
-// locking and unlocking tokens used for the governance 
-    
+    function classExists(uint256 classId) external returns (bool);
+
+    function nonceExists(uint256 classId, uint256 nonceId) external returns (bool);
+
+    function isActive() external returns (bool);
+
 }
