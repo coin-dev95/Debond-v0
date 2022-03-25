@@ -1,4 +1,4 @@
-pragma solidity =0.8.4;
+pragma solidity ^0.8.4;
 
 // SPDX-License-Identifier: apache 2.0
 /*
@@ -32,7 +32,7 @@ contract DebondData is IData {
 
     mapping ( uint => Class) classIdToClass; // mapping from classId to class
 
-    function updateClassIdToClass (uint classId, uint period, address tokenAddress, string symbol, InterestRateType interestRateType) public {
+    function updateClassIdToClass (uint classId, uint period, address tokenAddress, string memory symbol, InterestRateType interestRateType) public {
         Class storage class = classIdToClass[classId];
         class.classId = classId;
         class.period = period;
@@ -67,7 +67,7 @@ contract DebondData is IData {
         address tokenA,
         address tokenB,
         bool allowed
-    ) external override onlyGov { //verify why override needed
+    ) external override { //verify why override needed
         tokenAllowed[tokenA][tokenB] = allowed;
     }
 
@@ -79,13 +79,12 @@ contract DebondData is IData {
 
     function classIdToInfos(
         uint classId
-    ) external view returns(uint period, address tokenAddress, string symbol, InterestRateType interestRateType) {
+    ) external view returns(uint period, address tokenAddress, InterestRateType interestRateType) {
         Class storage class = classIdToClass[classId];
         period = class.period;
         tokenAddress = class.tokenAddress;
-        symbol = class.symbol;
         interestRateType = class.interestRateType;
-        return (period, tokenAddress, symbol, interestRateType);
+        return (period, tokenAddress, interestRateType);
     }
 
 

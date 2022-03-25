@@ -16,12 +16,9 @@ pragma solidity ^0.8.4;
 
 
 
-import './APM.sol';
-import './libraries/DebondLibrary.sol';
-import './Data.sol';
-import './ERC3475.sol';
+import '../APM/APM.sol';
+import '../DebondData.sol';
 import '../Interfaces/IERC20.sol';
-import './ERC20.sol';
 import "../Interfaces/IAPM.sol";
 import "../Interfaces/IData.sol";
 import "../Interfaces/IDebondBond.sol";
@@ -56,7 +53,7 @@ contract Bank  {  //is IBank  remove data here and do functions  , IAPM
         uint classIdB, // token to mint
         uint amountADesired,
         uint amountMinBond,
-        address to, //maybe not necessary
+//        address to, //maybe not necessary
     //uint deadline, //let a default value 20 min as pancakeswap
         PurchaseMethod purchaseMethod  //0 for stacking, 1 for buying
 
@@ -65,8 +62,9 @@ contract Bank  {  //is IBank  remove data here and do functions  , IAPM
     //uint interest // should be a function
     ) public  /*override ensure(deadline)*/ returns (uint amountA, uint amountBToMint, address) {
 
-        (uint periodA, address tokentoAdd, ) = data.classIdToInfos(classIdA);
-        (uint periodB, address tokenToMint, ) = data.classIdToInfos(classIdB); // see if we need all the param, or only need in certain choice
+        uint cl = classIdA;
+        ( ,address tokentoAdd,) = data.classIdToInfos(cl);
+        ( ,address tokenToMint,) = data.classIdToInfos(classIdB); // see if we need all the param, or only need in certain choice
 
 
         require(data.isPairAllowed(tokentoAdd, tokenToMint));
@@ -76,27 +74,27 @@ contract Bank  {  //is IBank  remove data here and do functions  , IAPM
 
         //approval?
         IERC20(tokentoAdd).transferFrom(msg.sender, address(apm), amountA);  //see uniswap : transferhelper,ierc202
-        ISigmoidToken(tokenToMint).mint(address(apm), amountBToMint); // be aware that tokenB is a DebondToken, maybe add it to the class model
+        ISigmoidToken(tokenToMint).mintAllocation(address(apm), amountBToMint); // be aware that tokenB is a DebondToken, maybe add it to the class model
 
         //check tomorrow why it works while I don't have these tokens
-
-        uint nonceA = getNonce(classIdA);
-        uint nonceB = getNonce(classIdB);
-        //later : look if nounce exist: if not, create new one
+        {
+            //later : look if nounce exist: if not, create new one
 
 
-        if (purchaseMethod == PurchaseMethod.Staking) {
-            bond.issue(to, classIdA, nonceA, amountA);
-            bond.issue(to, classIdB, nonceB, amountA * 50000000000000000); //we define interest at 5% for the period
+            if (purchaseMethod == PurchaseMethod.Staking) {
+                bond.issue(msg.sender, cl, getNonce(cl), amountA);
+                bond.issue(msg.sender, classIdB, getNonce(classIdB), amountA * 50000000000000000); //we define interest at 5% for the period
+            }
+            else
+                if (purchaseMethod == PurchaseMethod.Buying) {
+                    (uint reserveA, uint reserveB) = apm.getReserves( tokentoAdd, tokenToMint);
+                    uint amount = CDP.quote(amountA, reserveA, reserveB);
+                    bond.issue(msg.sender, 1, getNonce(cl), amount + amount * 5 / 100);
+                }
         }
-        else
-            if (purchaseMethod == PurchaseMethod.Buying) {
-            (uint reserveA, uint reserveB) = apm.getReserves( tokentoAdd, tokenToMint);
-            uint amount = CDP.quote(amountA, reserveA, reserveB);
-            bond.issue(to, 1, nonceA, amount *(1 + (5 / 100)));
-        }
 
-        apm.addLiquidity(tokentoAdd, tokenToMint); // mint of the bond, we do not precise class as we provide pair address
+
+        apm.updateRatioFactor(tokenToMint, tokentoAdd, amountBToMint, amountADesired); // mint of the bond, we do not precise class as we provide pair address
         // interest should be calculated and not directly put in param, because everyone can call this function
 
 

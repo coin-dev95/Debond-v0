@@ -15,42 +15,6 @@ pragma solidity 0.8.13;
 */
 
 interface IAPM {
-    function addLiquidity(
-		address _baseToken,
-		address _token,
-		uint256 _amountBaseToken,
-		uint256 _amountToken,
-		uint256 _classBaseToken,
-		uint256 _classIdToken,
-		uint256 _nonecBaseToken,
-		uint256 _nonceToken,
-		address _to,
-		uint deadline
-	) external;
-
-    function removeLiquidity(
-		address _baseToken,
-		address _token,
-		uint256 _amountBaseToken,
-		uint256 _amountToken,
-		uint256 _classBaseToken,
-		uint256 _classIdToken,
-		uint256 _nonecBaseToken,
-		uint256 _nonceToken,
-		address _to,
-		uint deadline
-	) external;
-
-    function getRatio( 
-		address token0,
-		address token1
-	) external returns(uint256 previousRatio, uint256 ratio);
-
-    function getPrice( 
-		address token0,
-		address token1
-	) external returns(uint256 price);
-
 
     function updateRatioFactor( 
 		address token0,

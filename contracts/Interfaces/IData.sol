@@ -24,7 +24,7 @@ interface IData {
         bool allowed
     ) external;
 
-    function updateClassIdToClass(uint classId, uint period, address tokenAddress, string symbol, InterestRateType interestRateType) external;
+    function updateClassIdToClass(uint classId, uint period, address tokenAddress, string memory symbol, InterestRateType interestRateType) external;
 
     function isPairAllowed(
         address tokenA,
@@ -32,5 +32,5 @@ interface IData {
 
     function classIdToInfos(
         uint classId
-    ) external view returns(uint period, address tokenAddress, string symbol, InterestRateType interestRateType);
+    ) external view returns(uint period, address tokenAddress, InterestRateType interestRateType);
 }
