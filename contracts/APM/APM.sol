@@ -17,7 +17,7 @@ pragma solidity 0.8.13;
 import "../Interfaces/IAPM.sol";
 import "../Libraries/SafeMath.sol";
 
-contract APM {
+contract APM is IAPM {
     using SafeMath for uint256;
 
 	// token reserve L(tA)
