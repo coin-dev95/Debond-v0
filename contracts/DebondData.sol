@@ -15,76 +15,108 @@ pragma solidity ^0.8.4;
 */
 
 
-import './Interfaces/IData.sol';
-import "./Interfaces/IERC20.sol";
-
+import './interfaces/IData.sol';
 
 contract DebondData is IData {
 
+    uint public constant SIX_M_PERIOD = 60; // 1 min period for tests
 
     struct Class {
-        uint classId;
-        uint period;
-        address tokenAddress;
+        uint id;
+        bool exists;
         string symbol;
-        InterestRateType interestRateType; //fixed rate or flexible
+        InterestRateType interestRateType;
+        address tokenAddress;
+        uint periodTimestamp;
+        uint lastNonceIdCreated;
+        uint lastNonceIdCreatedTimestamp;
     }
 
-    mapping ( uint => Class) classIdToClass; // mapping from classId to class
+    mapping(uint => Class) classes; // mapping from classId to class
 
-    function updateClassIdToClass (uint classId, uint period, address tokenAddress, string memory symbol, InterestRateType interestRateType) public {
-        Class storage class = classIdToClass[classId];
-        class.classId = classId;
-        class.period = period;
-        class.tokenAddress = tokenAddress;
-        class.interestRateType = interestRateType;
-    }
-
-    mapping (address => mapping ( address => bool ) ) public tokenAllowed; //private or??
-
-    //tokens whitlistées
-
-    // mapping class nounce?
-
-
-
+    mapping(address => mapping( address => bool)) public tokenAllowed;
 
     constructor(
-        address _dbit,
-        address _testToken
+        address DBIT,
+        address USDC,
+        address USDT,
+        address DAI
+//        address governance
     ) {
 
-        updateClassIdToClass(1, 1, _dbit, "DBIT", InterestRateType.FixedRate);
-        updateClassIdToClass(2, 1, _testToken, "TEST", InterestRateType.FixedRate);
+        addClass(0, "DBIT", InterestRateType.FixedRate, DBIT, SIX_M_PERIOD);
+        addClass(1, "USDC", InterestRateType.FixedRate, USDC, SIX_M_PERIOD);
+        addClass(2, "USDT", InterestRateType.FixedRate, USDT, SIX_M_PERIOD);
+        addClass(3, "DAI", InterestRateType.FixedRate, DAI, SIX_M_PERIOD);
 
-        tokenAllowed[_dbit][_testToken] = true;
-        tokenAllowed[_testToken][_dbit] = true;
+        tokenAllowed[DBIT][USDC] = true;
+        tokenAllowed[DBIT][USDT] = true;
+        tokenAllowed[DBIT][DAI] = true;
+
+        tokenAllowed[USDC][DBIT] = true;
+        tokenAllowed[USDT][DBIT] = true;
+        tokenAllowed[DAI][DBIT] = true;
 
     }
 
+    /**
+     * @notice this method should only be called by the governance contract TODO Only Governance
+     */
+    function addClass(uint classId, string memory symbol, InterestRateType interestRateType, address tokenAddress, uint periodTimestamp) external override {
+        Class storage class = classes[classId];
+        require(!class.exists, "DebondData: cannot add an existing classId");
+        class.id = classId;
+        class.exists = true;
+        class.symbol = symbol;
+        class.interestRateType = interestRateType;
+        class.tokenAddress = tokenAddress;
+        class.periodTimestamp = periodTimestamp;
 
+        // should maybe add an event
+    }
+
+    // TODO Only Governance
     function updateTokenAllowed (
         address tokenA,
         address tokenB,
         bool allowed
-    ) external override { //verify why override needed
+    ) external override {
         tokenAllowed[tokenA][tokenB] = allowed;
+        tokenAllowed[tokenB][tokenA] = allowed;
     }
 
     function isPairAllowed (
         address tokenA,
-        address tokenB) external view returns (bool) {
+        address tokenB) public view returns (bool) {
         return tokenAllowed[tokenA][tokenB];
     }
 
-    function classIdToInfos(
+    function getClassFromId(
         uint classId
-    ) external view returns(uint period, address tokenAddress, InterestRateType interestRateType) {
+    ) external view returns(string memory symbol, InterestRateType interestRateType, address tokenAddress, uint periodTimestamp) {
         Class storage class = classIdToClass[classId];
-        period = class.period;
+        symbol = class.symbol;
+        periodTimestamp = class.periodTimestamp;
         tokenAddress = class.tokenAddress;
         interestRateType = class.interestRateType;
-        return (period, tokenAddress, interestRateType);
+        return (symbol, interestRateType, tokenAddress, periodTimestamp);
+    }
+
+    // TODO Only Bank
+    function getLastNonceCreated(uint classId) external view returns(uint nonceId, uint createdAt) {
+        Class storage class = classes[classId];
+        require(class.exists, "Debond Data: class id given not found");
+        nonceId = class.lastNonceIdCreated;
+        createdAt = class.lastNonceIdCreatedTimestamp;
+        return (nonceId, createdAt);
+    }
+
+    // TODO Only Bank
+    function updateLastNonce(uint classId, uint nonceId, uint createdAt) external {
+        Class storage class = classes[classId];
+        require(class.exists, "Debond Data: class id given not found");
+        class.lastNonceIdCreated = nonceId;
+        class.lastNonceIdCreatedTimestamp = nonceId;
     }
 
 

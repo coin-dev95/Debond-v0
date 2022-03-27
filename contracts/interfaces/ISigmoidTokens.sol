@@ -17,15 +17,11 @@ import "./IERC20.sol";
 */
 
 interface ISigmoidToken is IERC20 {
-    function isActive() external view returns (bool);
-
-    function maximumSupply() external view returns (uint256);
-
     function allocatedSupply() external view returns (uint256);
 
     function setBankContract(address bank_address) external returns (bool);
 
-    function mintAllocation(address _to, uint256 _amount)
+    function mint(address _to, uint256 _amount)
         external
         returns (bool);
  

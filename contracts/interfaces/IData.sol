@@ -18,19 +18,15 @@ interface IData {
 
     enum InterestRateType {FixedRate, FloatingRate}
 
-    function updateTokenAllowed(
-        address tokenA,
-        address tokenB,
-        bool allowed
-    ) external;
+    function addClass(uint classId, string memory symbol, InterestRateType interestRateType, address tokenAddress, uint periodTimestamp) external;
 
-    function updateClassIdToClass(uint classId, uint period, address tokenAddress, string memory symbol, InterestRateType interestRateType) external;
+    function updateTokenAllowed(address tokenA, address tokenB, bool allowed) external;
 
-    function isPairAllowed(
-        address tokenA,
-        address tokenB) external view returns (bool);
+    function isPairAllowed(address tokenA, address tokenB) external view returns (bool);
 
-    function classIdToInfos(
-        uint classId
-    ) external view returns(uint period, address tokenAddress, InterestRateType interestRateType);
+    function getClassFromId(uint classId) external view returns(string memory symbol, InterestRateType interestRateType, address tokenAddress, uint periodTimestamp);
+
+    function getLastNonceCreated(uint classId) external view returns(uint nonceId, uint createdAt);
+
+    function updateLastNonce(uint classId, uint nonceId, uint createdAt) external;
 }

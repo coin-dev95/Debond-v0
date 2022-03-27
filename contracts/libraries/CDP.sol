@@ -2,7 +2,7 @@ pragma solidity ^0.8.0;
 
 
 
-import "../Interfaces/ISigmoidTokens.sol";
+import "../interfaces/ISigmoidTokens.sol";
 import "./SafeMath.sol";
 /**
 functions for determining the amount of DBIT to be mint and pricing 

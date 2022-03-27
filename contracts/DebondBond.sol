@@ -4,7 +4,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "../Interfaces/IDebondBond.sol";
+import "./interfaces/IDebondBond.sol";
 
 
 contract DebondBond is IDebondBond, AccessControl {
