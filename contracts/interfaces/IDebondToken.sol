@@ -1,6 +1,6 @@
 pragma solidity ^0.8.9;
 
-import "./IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 // SPDX-License-Identifier: apache 2.0
 /*
@@ -17,7 +17,6 @@ import "./IERC20.sol";
 */
 
 interface IDebondToken is IERC20 {
-    function allocatedSupply() external view returns (uint256);
 
     function mint(address _to, uint256 _amount) external;
 

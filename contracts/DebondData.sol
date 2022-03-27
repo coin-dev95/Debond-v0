@@ -62,7 +62,7 @@ contract DebondData is IData {
     /**
      * @notice this method should only be called by the governance contract TODO Only Governance
      */
-    function addClass(uint classId, string memory symbol, InterestRateType interestRateType, address tokenAddress, uint periodTimestamp) external override {
+    function addClass(uint classId, string memory symbol, InterestRateType interestRateType, address tokenAddress, uint periodTimestamp) public override {
         Class storage class = classes[classId];
         require(!class.exists, "DebondData: cannot add an existing classId");
         class.id = classId;
@@ -94,7 +94,7 @@ contract DebondData is IData {
     function getClassFromId(
         uint classId
     ) external view returns(string memory symbol, InterestRateType interestRateType, address tokenAddress, uint periodTimestamp) {
-        Class storage class = classIdToClass[classId];
+        Class storage class = classes[classId];
         symbol = class.symbol;
         periodTimestamp = class.periodTimestamp;
         tokenAddress = class.tokenAddress;
@@ -116,7 +116,7 @@ contract DebondData is IData {
         Class storage class = classes[classId];
         require(class.exists, "Debond Data: class id given not found");
         class.lastNonceIdCreated = nonceId;
-        class.lastNonceIdCreatedTimestamp = nonceId;
+        class.lastNonceIdCreatedTimestamp = createdAt;
     }
 
 

@@ -109,7 +109,7 @@ contract DebondBond is IDebondBond, AccessControl {
         Class storage class = classes[classId];
 
         Nonce storage nonce = class.nonces[nonceId];
-        require(nonceId != nonce.id, "Error ERC-3475: nonceId exists!");
+        require(!nonce.exists, "Error ERC-3475: nonceId exists!");
 
         nonce.id = nonceId;
         nonce.exists = true;
