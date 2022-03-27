@@ -16,20 +16,10 @@ import "./IERC20.sol";
     limitations under the License.
 */
 
-interface ISigmoidToken is IERC20 {
+interface IDebondToken is IERC20 {
     function allocatedSupply() external view returns (uint256);
 
-    function setBankContract(address bank_address) external returns (bool);
-
-    function mint(address _to, uint256 _amount)
-        external
-        returns (bool);
- 
-    function bankTransfer(
-        address _from,
-        address _to,
-        uint256 _amount
-    ) external returns (bool);
+    function mint(address _to, uint256 _amount) external;
 
 
 }

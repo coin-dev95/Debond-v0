@@ -22,7 +22,7 @@ import './interfaces/IERC20.sol';
 import "./interfaces/IAPM.sol";
 import "./interfaces/IData.sol";
 import "./interfaces/IDebondBond.sol";
-import "./interfaces/ISigmoidTokens.sol";
+import "./interfaces/IDebondToken.sol";
 import "./libraries/CDP.sol";
 
 
@@ -31,13 +31,14 @@ contract Bank  {
     using CDP for uint256;
 
     IAPM apm;
-    IData data;
+    IData debondData;
     IDebondBond bond;
     enum PurchaseMethod {Buying, Staking}
+    uint public constant BASE_TIMESTAMP = 1646089200; // 2022-03-01 00:00
 
     constructor(address apmAddress, address dataAddress, address bondAddress) {
         apm  = IAPM(apmAddress);
-        data = IData(dataAddress);
+        debondData = IData(dataAddress);
         bond = IDebondBond(bondAddress);
     }
 
@@ -58,18 +59,18 @@ contract Bank  {
 
         uint _purchaseTokenClassId = purchaseTokenClassId;
         uint _debondTokenClassId = debondTokenClassId;
-        (,,address purchaseTokenAddress,) = data.getClassFromId()(_purchaseTokenClassId);
-        (,,address debondTokenAddress,) = data.getClassFromId(_debondTokenClassId);
+        (,,address purchaseTokenAddress,) = debondData.getClassFromId()(_purchaseTokenClassId);
+        (,,address debondTokenAddress,) = debondData.getClassFromId(_debondTokenClassId);
 
 
-        require(data.isPairAllowed(purchaseTokenAddress, debondTokenAddress));
+        require(debondData.isPairAllowed(purchaseTokenAddress, debondTokenAddress));
 
         amountBToMint = calculateDebondTokenToMint(purchaseTokenAddress, debondTokenAddress, purchaseTokenAmount);
 
 
         //approval?
         IERC20(purchaseTokenAddress).transferFrom(msg.sender, address(apm), amountA);  //see uniswap : transferhelper,ierc202
-        ISigmoidToken(debondTokenAddress).mint(address(apm), amountBToMint); // be aware that tokenB is a DebondToken, maybe add it to the class model
+        IDebondToken(debondTokenAddress).mint(address(apm), amountBToMint); // be aware that tokenB is a DebondToken, maybe add it to the class model
 
         //check tomorrow why it works while I don't have these tokens
         {
@@ -77,7 +78,7 @@ contract Bank  {
 
 
             if (purchaseMethod == PurchaseMethod.Staking) {
-                bond.issue(msg.sender, _purchaseTokenClassId, getNonce(_purchaseTokenClassId), amountA);
+                bond.issue(msg.sender, _purchaseTokenClassId, debondData.getLastNonceCreated(_purchaseTokenClassId), amountA);
                 bond.issue(msg.sender, _debondTokenClassId, getNonce(_debondTokenClassId), amountA * 50000000000000000); //we define interest at 5% for the period
             }
             else
@@ -111,6 +112,10 @@ contract Bank  {
 
     function amountOfDBITToMint(uint256 amountA) public pure returns(uint256 amountToMint) {
         return amountA;
+    }
+
+    function checkIfNonceCreationNeeded(uint classId) {
+
     }
 
 }

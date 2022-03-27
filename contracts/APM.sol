@@ -14,8 +14,8 @@ pragma solidity 0.8.13;
     limitations under the License.
 */
 
-import "../interfaces/IAPM.sol";
-import "../libraries/SafeMath.sol";
+import "./interfaces/IAPM.sol";
+import "./libraries/SafeMath.sol";
 
 
 contract APM is IAPM {
