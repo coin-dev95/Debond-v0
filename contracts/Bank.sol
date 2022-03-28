@@ -1,4 +1,4 @@
-pragma solidity ^0.8.4;
+pragma solidity 0.8.13;
 
 // SPDX-License-Identifier: apache 2.0
 /*
@@ -94,11 +94,11 @@ contract Bank {
             if (purchaseMethod == PurchaseMethod.Buying) {
                 (uint reserveA, uint reserveB) = apm.getReserves(purchaseTokenAddress, debondTokenAddress);
                 uint amount = CDP.quote(purchaseTokenAmount, reserveA, reserveB);
-                bond.issue(msg.sender, 1, manageAndGetNonceId(purchaseTokenClassId, nowTimestamp), amount + amount * RATE / 100); // here the interest calculation is hardcoded
+                bond.issue(msg.sender, debondTokenClassId, manageAndGetNonceId(purchaseTokenClassId, nowTimestamp), amount + amount * RATE / 100); // here the interest calculation is hardcoded
             }
 
 
-        apm.updateRatioFactor(debondTokenAddress, purchaseTokenAddress, amountBToMint, purchaseTokenAmount);
+//        apm.updateRatioFactor(debondTokenAddress, purchaseTokenAddress, amountBToMint, purchaseTokenAmount);
 
 
     }

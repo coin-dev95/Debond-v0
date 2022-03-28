@@ -1,4 +1,4 @@
-pragma solidity ^0.8.4;
+pragma solidity 0.8.13;
 
 // SPDX-License-Identifier: apache 2.0
 /*
@@ -49,13 +49,14 @@ contract DebondData is IData {
         addClass(2, "USDT", InterestRateType.FixedRate, USDT, SIX_M_PERIOD);
         addClass(3, "DAI", InterestRateType.FixedRate, DAI, SIX_M_PERIOD);
 
-        tokenAllowed[DBIT][USDC] = true;
-        tokenAllowed[DBIT][USDT] = true;
-        tokenAllowed[DBIT][DAI] = true;
+        (address token1, address token2) = sortTokens(DBIT,USDC);
+        tokenAllowed[token1][token2] = true;
 
-        tokenAllowed[USDC][DBIT] = true;
-        tokenAllowed[USDT][DBIT] = true;
-        tokenAllowed[DAI][DBIT] = true;
+        (token1, token2) = sortTokens(DBIT,USDT);
+        tokenAllowed[token1][token2] = true;
+
+        (token1, token2) = sortTokens(DBIT,DAI);
+        tokenAllowed[token1][token2] = true;
 
     }
 
@@ -86,8 +87,9 @@ contract DebondData is IData {
     }
 
     function isPairAllowed (
-        address tokenA,
-        address tokenB) public view returns (bool) {
+        address _tokenA,
+        address _tokenB) public view returns (bool) {
+        (address tokenA, address tokenB) = sortTokens(_tokenA, _tokenB);
         return tokenAllowed[tokenA][tokenB];
     }
 
@@ -117,6 +119,12 @@ contract DebondData is IData {
         require(class.exists, "Debond Data: class id given not found");
         class.lastNonceIdCreated = nonceId;
         class.lastNonceIdCreatedTimestamp = createdAt;
+    }
+
+    function sortTokens(address tokenA, address tokenB) internal pure returns (address token0, address token1) {
+        require(tokenA != tokenB, 'DebondLibrary: IDENTICAL_ADDRESSES');
+        (token0, token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
+        require(token0 != address(0), 'DebondLibrary: ZERO_ADDRESS');
     }
 
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 
-pragma solidity ^0.8.0;
+pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./interfaces/IDebondBond.sol";
@@ -53,10 +53,17 @@ contract DebondBond is IDebondBond, AccessControl {
     bool public _isActive;
 
     constructor(
-
+        address DBIT,
+        address USDC,
+        address USDT,
+        address DAI
     ) {
         _isActive = true;
-        grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        createClass(0, "DBIT", InterestRateType.FixedRate, DBIT, 60);
+        createClass(1, "USDC", InterestRateType.FixedRate, USDC, 60);
+        createClass(2, "USDT", InterestRateType.FixedRate, USDT, 60);
+        createClass(3, "DAI", InterestRateType.FixedRate, DAI, 60);
     }
 
 
@@ -93,7 +100,7 @@ contract DebondBond is IDebondBond, AccessControl {
         return classes[classId].nonces[nonceId].exists;
     }
 
-    function createClass(uint256 classId, string memory _symbol, InterestRateType interestRateType, address tokenAddress, uint256 periodTimestamp) external override onlyRole(ISSUER_ROLE) {
+    function createClass(uint256 classId, string memory _symbol, InterestRateType interestRateType, address tokenAddress, uint256 periodTimestamp) public override {
         require(!classExists(classId), "ERC3475: cannot create a class that already exists");
         Class storage class = classes[classId];
         class.id = classId;
