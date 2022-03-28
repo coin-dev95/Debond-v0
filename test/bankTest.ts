@@ -1,6 +1,7 @@
 const Bank = artifacts.require("Bank");
 const USDC = artifacts.require("USDC");
 const DBIT = artifacts.require("DBIT");
+const APM = artifacts.require("APM");
 const DebondBond = artifacts.require("DebondBond");
 
 contract('Bank', async (accounts: string[]) => {
@@ -10,17 +11,20 @@ contract('Bank', async (accounts: string[]) => {
         const bankContract = await Bank.deployed();
         const bondContract = await DebondBond.deployed();
         const dbitContract = await DBIT.deployed();
+        const apmAddress = (await APM.deployed()).address;
         const issueRole = await bondContract.ISSUER_ROLE();
         const minterRole = await dbitContract.MINTER_ROLE();
         await bondContract.grantRole(issueRole, bankContract.address);
         await dbitContract.grantRole(minterRole, bankContract.address);
-        console.log(await bondContract.hasRole(issueRole, bankContract.address));
         await usdcContract.mint(accounts[0], 100000);
-        await usdcContract.approve(bankContract.address, 100000);
+        // await usdcContract.approve(bankContract.address, 100000);
         console.log(bankContract.address, issueRole, minterRole)
         await bankContract.buyBond(1, 0, 1000, 50, 0);
 
-        console.log("balance D/BIT: " + (await bondContract.balanceOf(accounts[0], 0, 0)));
-        console.log("balance USDC : " + (await bondContract.balanceOf(accounts[0], 1, 0)));
+        console.log("balance Bond D/BIT: " + (await bondContract.balanceOf(accounts[0], 0, 0)));
+        console.log("balance Bond USDC : " + (await bondContract.balanceOf(accounts[0], 1, 0)));
+        console.log("balance USDC in APM : " + (await usdcContract.balanceOf(apmAddress)));
+        console.log("balance D/BIT in APM : " + (await dbitContract.balanceOf(apmAddress)));
+
     })
 });
