@@ -12,13 +12,7 @@ contract('Bank', async (accounts: string[]) => {
         const bondContract = await DebondBond.deployed();
         const dbitContract = await DBIT.deployed();
         const apmAddress = (await APM.deployed()).address;
-        const issueRole = await bondContract.ISSUER_ROLE();
-        const minterRole = await dbitContract.MINTER_ROLE();
-        await bondContract.grantRole(issueRole, bankContract.address);
-        await dbitContract.grantRole(minterRole, bankContract.address);
         await usdcContract.mint(accounts[0], 100000);
-        // await usdcContract.approve(bankContract.address, 100000);
-        console.log(bankContract.address, issueRole, minterRole)
         await bankContract.buyBond(1, 0, 1000, 50, 0);
 
         console.log("balance Bond D/BIT: " + (await bondContract.balanceOf(accounts[0], 0, 0)));

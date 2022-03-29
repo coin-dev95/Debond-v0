@@ -18,7 +18,7 @@ module.exports = {
       },
       network_id: 4,
       // gas: 30000000, //from ganache-cli output
-      gasPrice: web3.utils.toWei('20', 'gwei')
+      gasPrice: web3.utils.toWei('1', 'gwei')
     },
     ropsten: {
       provider: function() {
@@ -26,7 +26,7 @@ module.exports = {
       },
       network_id: 3,
       // gas: 30000000, //from ganache-cli output
-      gasPrice: web3.utils.toWei('20', 'gwei')
+      gasPrice: web3.utils.toWei('1', 'gwei')
     }
   },
   mocha: {

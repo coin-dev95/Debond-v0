@@ -21,11 +21,21 @@ module.exports = async function (deployer) {
   await deployer.deploy(DebondData, DBITInstance.address, USDCInstance.address, USDTInstance.address, DAIInstance.address)
   await deployer.deploy(APM, USDCInstance.address, DBITInstance.address);
 
-  const bondAddress = (await DebondBond.deployed()).address
+  const bondInstance = await DebondBond.deployed()
+  const bondAddress = bondInstance.address
   const dataAddress = (await DebondData.deployed()).address
   const apmAddress = (await APM.deployed()).address
 
   await deployer.deploy(Bank, apmAddress, dataAddress, bondAddress).then((a) =>{
    console.log("Bank address:" + a.address)
   })
+
+  const bankInstance = await Bank.deployed();
+
+  const bondIssueRole = await bondInstance.ISSUER_ROLE();
+  const DBITMinterRole = await DBITInstance.MINTER_ROLE();
+  await bondInstance.grantRole(bondIssueRole, bankInstance.address);
+  await DBITInstance.grantRole(DBITMinterRole, bankInstance.address);
+
+
 };
