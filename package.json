@@ -22,7 +22,10 @@
   "homepage": "https://github.com/Debond-Protocol/Debond-v0#readme",
   "dependencies": {
     "@openzeppelin/contracts": "^4.5.0",
-    "erc-3475": "git+https://github.com/DeBond-Protocol/EIP-3475.git#master"
+    "dotenv": "^16.0.0",
+    "erc-3475": "git+https://github.com/DeBond-Protocol/EIP-3475.git#master",
+    "truffle-hdwallet-provider": "^1.0.17",
+    "web3": "^1.7.1"
   },
   "devDependencies": {
     "@typechain/truffle-v5": "^5.1.0",

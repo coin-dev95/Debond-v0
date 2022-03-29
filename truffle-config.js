@@ -1,9 +1,8 @@
-require("ts-node").register({
-  files: true,
-});
-// require('dotenv').config();
-// const Web3 = require("web3");
-// const web3 = new Web3();
+require("ts-node").register({files: true});
+const HDWalletProvider = require("truffle-hdwallet-provider");
+require('dotenv').config();
+const Web3 = require("web3");
+const web3 = new Web3();
 
 module.exports = {
   plugins: ['truffle-plugin-verify'],
@@ -12,6 +11,22 @@ module.exports = {
       host: "127.0.0.1",
       port: 8545,
       network_id: "*"
+    },
+    rinkeby: {
+      provider: function() {
+        return new HDWalletProvider(process.env.TESTNET_PRIVATE_KEY, `https://rinkeby.infura.io/v3/${process.env.INFURA_Access_Token}`);
+      },
+      network_id: 4,
+      // gas: 30000000, //from ganache-cli output
+      gasPrice: web3.utils.toWei('20', 'gwei')
+    },
+    ropsten: {
+      provider: function() {
+        return new HDWalletProvider(process.env.TESTNET_PRIVATE_KEY, `https://ropsten.infura.io/v3/${process.env.INFURA_Access_Token}`);
+      },
+      network_id: 3,
+      // gas: 30000000, //from ganache-cli output
+      gasPrice: web3.utils.toWei('20', 'gwei')
     }
   },
   mocha: {
@@ -24,49 +39,8 @@ module.exports = {
         optimizer: {
           enabled: true,
           runs: 200
-        },
+        }
       }
     }
   }
-
-
-  // Uncommenting the defaults below
-  // provides for an easier quick-start with Ganache.
-  // You can also follow this format for other networks;
-  // see <http://truffleframework.com/docs/advanced/configuration>
-  // for more details on how to specify configuration options!
-  //
-  //networks: {
-  //  development: {
-  //    host: "127.0.0.1",
-  //    port: 7545,
-  //    network_id: "*"
-  //  },
-  //  test: {
-  //    host: "127.0.0.1",
-  //    port: 7545,
-  //    network_id: "*"
-  //  }
-  //},
-  //
-  // Truffle DB is currently disabled by default; to enable it, change enabled:
-  // false to enabled: true. The default storage location can also be
-  // overridden by specifying the adapter settings, as shown in the commented code below.
-  //
-  // NOTE: It is not possible to migrate your contracts to truffle DB and you should
-  // make a backup of your artifacts to a safe location before enabling this feature.
-  //
-  // After you backed up your artifacts you can utilize db by running migrate as follows:
-  // $ truffle migrate --reset --compile-all
-  //
-  // db: {
-  // enabled: false,
-  // host: "127.0.0.1",
-  // adapter: {
-  //   name: "sqlite",
-  //   settings: {
-  //     directory: ".db"
-  //   }
-  // }
-  // }
 };

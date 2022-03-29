@@ -76,7 +76,7 @@ contract Bank {
             purchaseTokenAmount
         );
 
-        require(debondTokenMinAmount <= amountBToMint, "Not enough debond token in minting calculation");
+//        require(debondTokenMinAmount <= amountBToMint, "Not enough debond token in minting calculation");
 
 
         IERC20(purchaseTokenAddress).transferFrom(msg.sender, address(apm), purchaseTokenAmount);

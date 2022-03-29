@@ -36,6 +36,10 @@ contract DebondData is IData {
 
     mapping(address => mapping( address => bool)) public tokenAllowed;
 
+    // data to be exclusively for the front end (for now)
+    mapping(uint => uint[]) purchasableClasses;
+    uint[] debondClasses;
+
     constructor(
         address DBIT,
         address USDC,
@@ -48,6 +52,10 @@ contract DebondData is IData {
         addClass(1, "USDC", InterestRateType.FixedRate, USDC, SIX_M_PERIOD);
         addClass(2, "USDT", InterestRateType.FixedRate, USDT, SIX_M_PERIOD);
         addClass(3, "DAI", InterestRateType.FixedRate, DAI, SIX_M_PERIOD);
+
+        purchasableClasses[0].push(1);
+        purchasableClasses[0].push(2);
+        purchasableClasses[0].push(3);
 
         (address token1, address token2) = sortTokens(DBIT,USDC);
         tokenAllowed[token1][token2] = true;
