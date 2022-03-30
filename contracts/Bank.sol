@@ -110,9 +110,8 @@ contract Bank {
     function sellBonds(
         uint _TokenClassId,
         uint _TokenNonceId,
-        uint amountIn,
-        address to
-    ) public {
+        uint amountIn
+    ) external {
         IDebondBond(address(bond)).redeem(msg.sender, _TokenClassId,  _TokenNonceId, amountIn);
 	    //require(redeemable) is already done in redeem function
 
@@ -120,7 +119,7 @@ contract Bank {
         //require(reserves[TokenAddress]>amountIn);
 
 
-	    IERC20(TokenAddress).transferFrom(address(apm), to, amountIn);
+	    IERC20(TokenAddress).transferFrom(address(apm), msg.sender, amountIn);
 	    
         //how do we know if we have to burn dbit or dbgt?
 
