@@ -16,6 +16,7 @@ pragma solidity 0.8.13;
 
 
 import './interfaces/IData.sol';
+import './libraries/CDP.sol';
 
 contract DebondData is IData {
 
@@ -57,14 +58,15 @@ contract DebondData is IData {
         purchasableClasses[0].push(2);
         purchasableClasses[0].push(3);
 
-        (address token1, address token2) = sortTokens(DBIT,USDC);
+        (address token1, address token2) = CDP.sortTokens(DBIT,USDC);
         tokenAllowed[token1][token2] = true;
 
-        (token1, token2) = sortTokens(DBIT,USDT);
+        (token1, token2) = CDP.sortTokens(DBIT,USDT);
         tokenAllowed[token1][token2] = true;
 
-        (token1, token2) = sortTokens(DBIT,DAI);
+        (token1, token2) = CDP.sortTokens(DBIT,DAI);
         tokenAllowed[token1][token2] = true;
+        
 
     }
 
