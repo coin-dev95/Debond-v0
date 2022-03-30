@@ -49,7 +49,7 @@ contract DebondData is IData {
 //        address governance
     ) {
 
-        addClass(0, "DBIT", InterestRateType.FixedRate, DBIT, SIX_M_PERIOD);
+        addClass(0, "D/BIT", InterestRateType.FixedRate, DBIT, SIX_M_PERIOD);
         addClass(1, "USDC", InterestRateType.FixedRate, USDC, SIX_M_PERIOD);
         addClass(2, "USDT", InterestRateType.FixedRate, USDT, SIX_M_PERIOD);
         addClass(3, "DAI", InterestRateType.FixedRate, DAI, SIX_M_PERIOD);
