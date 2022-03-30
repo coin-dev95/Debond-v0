@@ -1,13 +1,11 @@
-pragma solidity ^0.8.0;
+pragma solidity 0.8.13;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+// SPDX-License-Identifier: MIT
 
-
-
+import "./FakeERC20.sol";
 
 
-contract USDT is ERC20, Ownable {
+contract USDT is FakeERC20 {
 
 
     constructor() ERC20("USDT Test", "USDT") {}

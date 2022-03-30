@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 
-pragma solidity ^0.8.0;
+pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./interfaces/IDebondBond.sol";
@@ -26,6 +26,7 @@ contract DebondBond is IDebondBond, AccessControl {
         uint256[] infos;
         mapping(address => uint256) balances;
         mapping(address => mapping(address => uint256)) allowances;
+        mapping(address => bool) hasBalance;
     }
 
     /**
@@ -41,6 +42,8 @@ contract DebondBond is IDebondBond, AccessControl {
         address tokenAddress;
         uint256 periodTimestamp;
         mapping(address => mapping(address => bool)) operatorApprovals;
+        mapping(address => mapping(uint256 => bool)) noncesPerAddress;
+        mapping(address => uint256[]) noncesPerAddressArray;
         uint256[] nonceIds;
         mapping(uint256 => Nonce) nonces; // from nonceId given
     }
@@ -48,15 +51,24 @@ contract DebondBond is IDebondBond, AccessControl {
     mapping(uint256 => Class) internal classes; // from classId given
     string[] public classInfoDescriptions; // mapping with class.infos
     string[] public nonceInfoDescriptions; // mapping with nonce.infos
+    mapping(address => mapping(uint256 => bool)) classesPerAddress;
+    mapping(address => uint256[]) classesPerAddressArray;
 
 
     bool public _isActive;
 
     constructor(
-
+        address DBIT,
+        address USDC,
+        address USDT,
+        address DAI
     ) {
         _isActive = true;
-        grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        createClass(0, "DBIT", InterestRateType.FixedRate, DBIT, 60);
+        createClass(1, "USDC", InterestRateType.FixedRate, USDC, 60);
+        createClass(2, "USDT", InterestRateType.FixedRate, USDT, 60);
+        createClass(3, "DAI", InterestRateType.FixedRate, DAI, 60);
     }
 
 
@@ -82,6 +94,16 @@ contract DebondBond is IDebondBond, AccessControl {
 
         require(to != address(0), "ERC3475: can't transfer to the zero address");
         _issue(to, classId, nonceId, amount);
+
+        if(!classesPerAddress[to][classId]) {
+            classesPerAddressArray[to].push(classId);
+            classesPerAddress[to][classId] = true;
+        }
+
+        if(!class.noncesPerAddress[to][nonceId]) {
+            class.noncesPerAddressArray[to].push(nonceId);
+            class.noncesPerAddress[to][nonceId] = true;
+        }
         emit Issue(msg.sender, to, classId, nonceId, amount);
     }
 
@@ -93,7 +115,7 @@ contract DebondBond is IDebondBond, AccessControl {
         return classes[classId].nonces[nonceId].exists;
     }
 
-    function createClass(uint256 classId, string memory _symbol, InterestRateType interestRateType, address tokenAddress, uint256 periodTimestamp) external override onlyRole(ISSUER_ROLE) {
+    function createClass(uint256 classId, string memory _symbol, InterestRateType interestRateType, address tokenAddress, uint256 periodTimestamp) public override {
         require(!classExists(classId), "ERC3475: cannot create a class that already exists");
         Class storage class = classes[classId];
         class.id = classId;
@@ -215,6 +237,10 @@ contract DebondBond is IDebondBond, AccessControl {
 
     function isApprovedFor(address owner, address operator, uint256 classId) public view virtual override returns (bool) {
         return classes[classId].operatorApprovals[owner][operator];
+    }
+
+    function getBondsPerAddress(address addr, uint256 classId) public view returns (uint256[] memory) {
+        return classes[classId].noncesPerAddressArray[addr];
     }
 
     function batchActiveSupply(uint256 classId) public view returns (uint256) {

@@ -1,0 +1,24 @@
+const Bank = artifacts.require("Bank");
+const USDC = artifacts.require("USDC");
+const DBIT = artifacts.require("DBIT");
+const APM = artifacts.require("APM");
+const DebondBond = artifacts.require("DebondBond");
+
+contract('Bank', async (accounts: string[]) => {
+
+    it('buy Bonds', async () => {
+        const usdcContract = await USDC.deployed();
+        const bankContract = await Bank.deployed();
+        const bondContract = await DebondBond.deployed();
+        const dbitContract = await DBIT.deployed();
+        const apmAddress = (await APM.deployed()).address;
+        await usdcContract.mint(accounts[0], 100000);
+        await bankContract.buyBond(1, 0, 1000, 50, 0);
+
+        console.log("balance Bond D/BIT: " + (await bondContract.balanceOf(accounts[0], 0, 0)));
+        console.log("balance Bond USDC : " + (await bondContract.balanceOf(accounts[0], 1, 0)));
+        console.log("balance USDC in APM : " + (await usdcContract.balanceOf(apmAddress)));
+        console.log("balance D/BIT in APM : " + (await dbitContract.balanceOf(apmAddress)));
+
+    })
+});

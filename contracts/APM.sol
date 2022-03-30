@@ -28,6 +28,11 @@ contract APM is IAPM {
 	// token reserve L(tA)
 	mapping(address => uint256[2]) internal reserve;
 
+	constructor(address tokenA, address tokenB) {
+		reserve[tokenA][1] = 1000;
+		reserve[tokenB][1] = 1000;
+	}
+
     /**
     * @dev update revserve of a token pair when adding or removing liquidity
     * @param _token0 address of the first token
