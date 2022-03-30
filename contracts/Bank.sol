@@ -87,8 +87,10 @@ contract Bank {
 
         if (purchaseMethod == PurchaseMethod.Staking) {
             bond.issue(msg.sender, purchaseTokenClassId, manageAndGetNonceId(purchaseTokenClassId, nowTimestamp), purchaseTokenAmount);
-            bond.issue(msg.sender, debondTokenClassId, manageAndGetNonceId(debondTokenClassId, nowTimestamp), amountBToMint * RATE / 100);
-            //we define interest at 5% for the period
+            (uint reserveA, uint reserveB) = apm.getReserves(purchaseTokenAddress, debondTokenAddress);
+            uint amount = CDP.quote(purchaseTokenAmount, reserveA, reserveB);
+            bond.issue(msg.sender, debondTokenClassId, manageAndGetNonceId(debondTokenClassId, nowTimestamp), amount * RATE / 100);
+            //msg.sender or to??
         }
         else
             if (purchaseMethod == PurchaseMethod.Buying) {
@@ -103,7 +105,34 @@ contract Bank {
 
     }
 
+// **** SELL BONDS ****
 
+    function sellBonds(
+        uint _TokenClassId,
+        uint _TokenNonceId,
+        uint amountIn,
+	address to
+    ) public returns(uint amountOut) {
+	    require(class id and nonce id ok);
+        
+        IERC3475(address(bond)).burn(msg.sender, _TokenClassId, _TokenNonceId, amountIn);
+	    //.burn or .redeem? is there a check of time stamp?
+	    //require(redeemable)
+
+        (,,address TokenAddress,) = debondData.getClassFromId(_TokenClassId);
+        //require(reserves[TokenAddress]>amountIn);
+
+	    IERC20(TokenAddress).safetransfer(to, TokenAddress, amountIn);
+	    //how do we know if we have to burn dbit or dbgt?
+
+	    APM.removeLiquidity(tokenAddress, amountIn);
+
+    }
+
+
+
+
+    
     // TODO External to the Bank maybe
     function calculateDebondTokenToMint(
 //        address purchaseTokenAddress, // token added
