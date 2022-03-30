@@ -54,7 +54,6 @@ contract DebondData is IData {
         addClass(2, "USDT", InterestRateType.FixedRate, USDT, SIX_M_PERIOD);
         addClass(3, "DAI", InterestRateType.FixedRate, DAI, SIX_M_PERIOD);
 
-<<<<<<< HEAD
         (address token1, address token2) = CDP.sortTokens(DBIT,USDC);
         tokenAllowed[token1][token2] = true;
 
@@ -64,20 +63,6 @@ contract DebondData is IData {
         (token1, token2) = CDP.sortTokens(DBIT,DAI);
         tokenAllowed[token1][token2] = true;
         
-=======
-        purchasableClasses[0].push(1);
-        purchasableClasses[0].push(2);
-        purchasableClasses[0].push(3);
-
-        (address token1, address token2) = sortTokens(DBIT,USDC);
-        tokenAllowed[token1][token2] = true;
-
-        (token1, token2) = sortTokens(DBIT,USDT);
-        tokenAllowed[token1][token2] = true;
-
-        (token1, token2) = sortTokens(DBIT,DAI);
-        tokenAllowed[token1][token2] = true;
->>>>>>> d6bc324818a83c3b72438573eb19e5bd6a659e33
 
     }
 

@@ -120,7 +120,7 @@ contract APM is IAPM {
 		return (price[token0][token1], price[token1][token0]);
 	}
 
-    function addLiquidity(
+    /*function addLiquidity(
         //address to    verify we do not need this 
         address tokenA,
         address tokenB
@@ -150,6 +150,7 @@ contract APM is IAPM {
 
         //update ratios
     }
+    */
 
 
     

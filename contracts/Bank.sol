@@ -111,21 +111,20 @@ contract Bank {
         uint _TokenClassId,
         uint _TokenNonceId,
         uint amountIn,
-	address to
-    ) public returns(uint amountOut) {
-	    require(class id and nonce id ok);
-        
-        IERC3475(address(bond)).burn(msg.sender, _TokenClassId, _TokenNonceId, amountIn);
-	    //.burn or .redeem? is there a check of time stamp?
-	    //require(redeemable)
+        address to
+    ) public {
+        IDebondBond(address(bond)).redeem(msg.sender, _TokenClassId,  _TokenNonceId, amountIn);
+	    //require(redeemable) is already done in redeem function
 
         (,,address TokenAddress,) = debondData.getClassFromId(_TokenClassId);
         //require(reserves[TokenAddress]>amountIn);
 
-	    IERC20(TokenAddress).safetransfer(to, TokenAddress, amountIn);
-	    //how do we know if we have to burn dbit or dbgt?
 
-	    APM.removeLiquidity(tokenAddress, amountIn);
+	    IERC20(TokenAddress).transferFrom(address(apm), to, amountIn);
+	    
+        //how do we know if we have to burn dbit or dbgt?
+
+	    //APM.removeLiquidity(tokenAddress, amountIn);
 
     }
 
