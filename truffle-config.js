@@ -6,6 +6,9 @@ const web3 = new Web3();
 
 module.exports = {
   plugins: ['truffle-plugin-verify'],
+  api_keys: {
+    etherscan: process.env.ETHERSCAN_API_KEY,
+  },
   networks: {
     development: {
       host: "127.0.0.1",
@@ -18,7 +21,7 @@ module.exports = {
       },
       network_id: 4,
       // gas: 30000000, //from ganache-cli output
-      gasPrice: web3.utils.toWei('1', 'gwei')
+      // gasPrice: web3.utils.toWei('1', 'gwei')
     },
     ropsten: {
       provider: function() {
