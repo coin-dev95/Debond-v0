@@ -244,7 +244,7 @@ contract DebondBond is IDebondBond, AccessControl {
 
 
     function isRedeemable(uint256 classId, uint256 nonceId) public override view returns (bool) {
-        return classes[classId].nonces[nonceId]._activeSupply > 0;
+        return classes[classId].nonces[nonceId].maturityDate <= block.timestamp;
     }
 
 
@@ -257,7 +257,8 @@ contract DebondBond is IDebondBond, AccessControl {
         return classes[classId].operatorApprovals[owner][operator];
     }
 
-    function getBondsPerAddress(address addr, uint256 classId) public view returns (uint256[] memory) {
+
+    function getNoncesPerAddress(address addr, uint256 classId) public view returns (uint256[] memory) {
         return classes[classId].noncesPerAddressArray[addr];
     }
 
