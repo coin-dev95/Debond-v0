@@ -17,17 +17,13 @@ pragma solidity 0.8.13;
 interface IAPM {
 
     function updaReserveAfterAddingLiquidity(
-        address _token0,
-        address _token1,
-        uint256 _amount0,
-        uint256 _amount1
+        address _token,
+        uint256 _amount
     ) external;
 
     function updaReserveAfterRemovingLiquidity(
-        address _token0,
-        address _token1,
-        uint256 _amount0,
-        uint256 _amount1
+        address _token,
+        uint256 _amount
     ) external;
 
     function updateRatioAfterAddingLiquidity(
@@ -44,7 +40,7 @@ interface IAPM {
         uint256 _amount1
     ) external;
 
-    function getReserves(
+    function getReserve(
         address _token
     ) external view returns(uint256 _reserve);
 

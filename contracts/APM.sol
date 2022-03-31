@@ -28,28 +28,28 @@ contract APM is IAPM {
 
     /**
     * @dev update revserve of tokens after adding liquidity
-    * @param _token0 address of the token
-    * @param _amount0 amount of the tokens to add
+    * @param _token address of the token
+    * @param _amount amount of the tokens to add
     */
-    function updaReserveAfterAddingLiquidity(address _token0, address _token1, uint256 _amount0, uint256 _amount1) external {
-        require(_token0 != address(0) && _token1 != address(0), "Notr valid token address");
-        require(_amount0 > 0 && _amount1 > 0, "Debond: No liquidity sent");
+    function updaReserveAfterAddingLiquidity(address _token, uint256 _amount) external {
+        require(_token != address(0), "Not valid token address");
+        require(_amount > 0, "Debond: No liquidity sent");
 
-        (uint256 _reserve0, uint256 _reserve1) = (reserve[_token0], reserve[_token1]);
-		(reserve[_token0], reserve[_token1]) = (_reserve0 + _amount0, _reserve1 + _amount1);
+        uint256 _reserve = reserve[_token];
+		reserve[_token] = _reserve + _amount;
 	}
 
     /**
     * @dev update revserve of tokens after removing liquidity
-    * @param _token0 address of the token
-    * @param _amount0 amount of the tokens to add
+    * @param _token address of the token
+    * @param _amount amount of the tokens to add
     */
-    function updaReserveAfterRemovingLiquidity(address _token0, address _token1, uint256 _amount0, uint256 _amount1) external {
-        require(_token0 != address(0) && _token1 != address(0), "Notr valid token address");
-        require(_amount0 > 0 && _amount1 > 0, "Debond: No liquidity sent");
+    function updaReserveAfterRemovingLiquidity(address _token, uint256 _amount) external {
+        require(_token != address(0), "Notr valid token address");
+        require(_amount > 0, "Debond: No liquidity sent");
 
-        (uint256 _reserve0, uint256 _reserve1) = (reserve[_token0], reserve[_token1]);
-		(reserve[_token0], reserve[_token1]) = (_reserve0 - _amount0, _reserve1 - _amount1);
+        uint256 _reserve0 = reserve[_token];
+		reserve[_token] = _reserve0 - _amount;
 	}
 
     /**
@@ -89,7 +89,7 @@ contract APM is IAPM {
     * @param _token address of the first token
     * @param _reserve the total liquidity of _token in the APM
     */
-    function getReserves(address _token) external view returns(uint256 _reserve) {
+    function getReserve(address _token) external view returns(uint256 _reserve) {
         _reserve = reserve[_token];
     }
 
