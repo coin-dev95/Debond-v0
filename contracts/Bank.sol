@@ -106,27 +106,47 @@ contract Bank {
 
     }
 
-// **** SELL BONDS ****
+    // **** SELL BONDS ****
 
     function sellBonds(
         uint _TokenClassId,
         uint _TokenNonceId,
-        uint amountIn
+        uint amount
+        //uint amountMin?
     ) external {
-        IDebondBond(address(bond)).redeem(msg.sender, _TokenClassId,  _TokenNonceId, amountIn);
-	    //require(redeemable) is already done in redeem function
+        IDebondBond(address(bond)).redeem(msg.sender, _TokenClassId,  _TokenNonceId, amount);
+	    //require(redeemable) is already done in redeem function for liquidity, but still has to be done for time redemption
 
-        (,,address TokenAddress,) = debondData.getClassFromId(_TokenClassId);
+        (, IData.InterestRateType interestRateType ,address TokenAddress,) = debondData.getClassFromId(_TokenClassId);
         //require(reserves[TokenAddress]>amountIn);
 
+        
 
-	    IERC20(TokenAddress).safeTransferFrom(address(apm), msg.sender, amountIn);
+        if(interestRateType == IData.InterestRateType.FixedRate) {
+            (,,,,,uint maturityDate) = bond.bondDetails( _TokenClassId, _TokenNonceId);
+            require(block.timestamp>maturityDate);
+            IERC20(TokenAddress).safeTransferFrom(address(apm), msg.sender, amount);
 
-        //how do we know if we have to burn dbit or dbgt?
+
+        }
+        else if (interestRateType == IData.InterestRateType.FloatingRate){
+            //to be implemented later
+        }
+
+
+
+	    
+        //how do we know if we have to burn (or put in reserves) dbit or dbgt?
+
 
 	    //APM.removeLiquidity(tokenAddress, amountIn);
+        //emit
 
     }
+
+    // **** Swaps ****
+
+
 
 
 

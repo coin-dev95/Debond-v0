@@ -20,7 +20,7 @@ import './libraries/CDP.sol';
 
 contract DebondData is IData {
 
-    uint public constant SIX_M_PERIOD = 60; // 1 min period for tests
+    uint public constant SIX_M_PERIOD = 2; // 1 min period for tests
 
     struct Class {
         uint id;
