@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 
 
-pragma solidity ^0.8.0;
+pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "../Interfaces/IDebondBond.sol";
+import "./interfaces/IDebondBond.sol";
 
 
 contract DebondBond is IDebondBond, AccessControl {
@@ -21,11 +21,13 @@ contract DebondBond is IDebondBond, AccessControl {
         uint256 _activeSupply;
         uint256 _burnedSupply;
         uint256 _redeemedSupply;
-        uint256 maturityTime;
+        uint256 maturityDate;
+        uint256 issuanceDate;
         uint256 liqT;
         uint256[] infos;
         mapping(address => uint256) balances;
         mapping(address => mapping(address => uint256)) allowances;
+        mapping(address => bool) hasBalance;
     }
 
     /**
@@ -37,10 +39,12 @@ contract DebondBond is IDebondBond, AccessControl {
         bool exists;
         string symbol;
         uint256[] infos;
-        InterestRateType interestRateType;
+        IData.InterestRateType interestRateType;
         address tokenAddress;
         uint256 periodTimestamp;
         mapping(address => mapping(address => bool)) operatorApprovals;
+        mapping(address => mapping(uint256 => bool)) noncesPerAddress;
+        mapping(address => uint256[]) noncesPerAddressArray;
         uint256[] nonceIds;
         mapping(uint256 => Nonce) nonces; // from nonceId given
     }
@@ -48,15 +52,24 @@ contract DebondBond is IDebondBond, AccessControl {
     mapping(uint256 => Class) internal classes; // from classId given
     string[] public classInfoDescriptions; // mapping with class.infos
     string[] public nonceInfoDescriptions; // mapping with nonce.infos
+    mapping(address => mapping(uint256 => bool)) classesPerAddress;
+    mapping(address => uint256[]) public classesPerAddressArray;
 
 
     bool public _isActive;
 
     constructor(
-
+        address DBIT,
+        address USDC,
+        address USDT,
+        address DAI
     ) {
         _isActive = true;
-        grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        createClass(0, "D/BIT", IData.InterestRateType.FixedRate, DBIT, 60);
+        createClass(1, "USDC", IData.InterestRateType.FixedRate, USDC, 60);
+        createClass(2, "USDT", IData.InterestRateType.FixedRate, USDT, 60);
+        createClass(3, "DAI", IData.InterestRateType.FixedRate, DAI, 60);
     }
 
 
@@ -82,6 +95,16 @@ contract DebondBond is IDebondBond, AccessControl {
 
         require(to != address(0), "ERC3475: can't transfer to the zero address");
         _issue(to, classId, nonceId, amount);
+
+        if(!classesPerAddress[to][classId]) {
+            classesPerAddressArray[to].push(classId);
+            classesPerAddress[to][classId] = true;
+        }
+
+        if(!class.noncesPerAddress[to][nonceId]) {
+            class.noncesPerAddressArray[to].push(nonceId);
+            class.noncesPerAddress[to][nonceId] = true;
+        }
         emit Issue(msg.sender, to, classId, nonceId, amount);
     }
 
@@ -93,7 +116,7 @@ contract DebondBond is IDebondBond, AccessControl {
         return classes[classId].nonces[nonceId].exists;
     }
 
-    function createClass(uint256 classId, string memory _symbol, InterestRateType interestRateType, address tokenAddress, uint256 periodTimestamp) external override onlyRole(ISSUER_ROLE) {
+    function createClass(uint256 classId, string memory _symbol, IData.InterestRateType interestRateType, address tokenAddress, uint256 periodTimestamp) public override {
         require(!classExists(classId), "ERC3475: cannot create a class that already exists");
         Class storage class = classes[classId];
         class.id = classId;
@@ -104,16 +127,17 @@ contract DebondBond is IDebondBond, AccessControl {
         class.periodTimestamp = periodTimestamp;
     }
 
-    function createNonce(uint256 classId, uint256 nonceId, uint256 maturityTime, uint256 liqT) external override onlyRole(ISSUER_ROLE) {
+    function createNonce(uint256 classId, uint256 nonceId, uint256 _maturityDate, uint256 liqT) external override onlyRole(ISSUER_ROLE) {
         require(classExists(classId), "ERC3475: only issue bond that has been created");
         Class storage class = classes[classId];
 
         Nonce storage nonce = class.nonces[nonceId];
-        require(nonceId != nonce.id, "Error ERC-3475: nonceId exists!");
+        require(!nonce.exists, "Error ERC-3475: nonceId exists!");
 
         nonce.id = nonceId;
         nonce.exists = true;
-        nonce.maturityTime = maturityTime;
+        nonce.maturityDate = _maturityDate;
+        nonce.issuanceDate = block.timestamp;
         nonce.liqT = liqT;
     }
 
@@ -194,6 +218,22 @@ contract DebondBond is IDebondBond, AccessControl {
         return classes[classId].nonces[nonceId].infos;
     }
 
+    function bondDetails(uint256 classId, uint256 nonceId) public view override returns (string memory _symbol, IData.InterestRateType _interestRateType, address _tokenAddress, uint256 _periodTimestamp, uint256 _issuanceDate, uint256 _maturityDate) {
+        Class storage class =  classes[classId];
+        Nonce storage nonce =  class.nonces[nonceId];
+
+        _symbol = class.symbol;
+        _interestRateType = class.interestRateType;
+        _tokenAddress = class.tokenAddress;
+        _periodTimestamp = class.periodTimestamp;
+        _issuanceDate = nonce.issuanceDate;
+        _maturityDate = nonce.maturityDate;
+
+        return (_symbol, _interestRateType, _tokenAddress, _periodTimestamp, _issuanceDate, _maturityDate);
+    }
+
+
+
     function classInfoDescription(uint256 classInfo) external view returns (string memory) {
         return classInfoDescriptions[classInfo];
     }
@@ -204,7 +244,7 @@ contract DebondBond is IDebondBond, AccessControl {
 
 
     function isRedeemable(uint256 classId, uint256 nonceId) public override view returns (bool) {
-        return classes[classId].nonces[nonceId]._activeSupply > 0;
+        return classes[classId].nonces[nonceId].maturityDate <= block.timestamp;
     }
 
 
@@ -215,6 +255,11 @@ contract DebondBond is IDebondBond, AccessControl {
 
     function isApprovedFor(address owner, address operator, uint256 classId) public view virtual override returns (bool) {
         return classes[classId].operatorApprovals[owner][operator];
+    }
+
+
+    function getNoncesPerAddress(address addr, uint256 classId) public view returns (uint256[] memory) {
+        return classes[classId].noncesPerAddressArray[addr];
     }
 
     function batchActiveSupply(uint256 classId) public view returns (uint256) {

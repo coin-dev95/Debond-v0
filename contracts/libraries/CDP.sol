@@ -1,8 +1,7 @@
-pragma solidity ^0.8.0;
+pragma solidity 0.8.13;
 
+// SPDX-License-Identifier: apache 2.0
 
-
-import "../Interfaces/ISigmoidTokens.sol";
 import "./SafeMath.sol";
 /**
 functions for determining the amount of DBIT to be mint and pricing 
@@ -10,7 +9,7 @@ functions for determining the amount of DBIT to be mint and pricing
 library CDP {
  using SafeMath for uint256;
 
-  function BondExchangeRate(uint256 dbitTotalSupply) public view returns (uint256 amount_bond) {
+  function BondExchangeRate(uint256 dbitTotalSupply) public pure returns (uint256 amount_bond) {
         if (dbitTotalSupply < 1e5) {
             amount_bond = 1 ether;
         } else {
@@ -19,7 +18,7 @@ library CDP {
         }
     } 
 
-    function _amountOfDebondToMint(uint256 _dbitIn) internal view returns (uint256 amountDBIT) {
+    function _amountOfDebondToMint(uint256 _dbitIn) internal pure returns (uint256 amountDBIT) {
         // todo: mock token contract.
         uint256 dbitMaxSupply = 10000;
         uint256 dbitTotalSupply = 1000000;

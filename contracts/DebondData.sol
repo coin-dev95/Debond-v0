@@ -1,4 +1,4 @@
-pragma solidity ^0.8.4;
+pragma solidity 0.8.13;
 
 // SPDX-License-Identifier: apache 2.0
 /*
@@ -15,76 +15,127 @@ pragma solidity ^0.8.4;
 */
 
 
-import './Interfaces/IData.sol';
-import "./Interfaces/IERC20.sol";
-
+import './interfaces/IData.sol';
+import './libraries/CDP.sol';
 
 contract DebondData is IData {
 
+    uint public constant SIX_M_PERIOD = 2; // 1 min period for tests
 
     struct Class {
-        uint classId;
-        uint period;
-        address tokenAddress;
+        uint id;
+        bool exists;
         string symbol;
-        InterestRateType interestRateType; //fixed rate or flexible
+        InterestRateType interestRateType;
+        address tokenAddress;
+        uint periodTimestamp;
+        uint lastNonceIdCreated;
+        uint lastNonceIdCreatedTimestamp;
     }
 
-    mapping ( uint => Class) classIdToClass; // mapping from classId to class
+    mapping(uint => Class) classes; // mapping from classId to class
 
-    function updateClassIdToClass (uint classId, uint period, address tokenAddress, string memory symbol, InterestRateType interestRateType) public {
-        Class storage class = classIdToClass[classId];
-        class.classId = classId;
-        class.period = period;
-        class.tokenAddress = tokenAddress;
-        class.interestRateType = interestRateType;
-    }
+    mapping(address => mapping( address => bool)) public tokenAllowed;
 
-    mapping (address => mapping ( address => bool ) ) public tokenAllowed; //private or??
-
-    //tokens whitlistées
-
-    // mapping class nounce?
-
-
-
+    // data to be exclusively for the front end (for now)
+    mapping(uint => uint[]) public purchasableClasses;
+    uint[] debondClasses;
 
     constructor(
-        address _dbit,
-        address _testToken
+        address DBIT,
+        address USDC,
+        address USDT,
+        address DAI
+//        address governance
     ) {
 
-        updateClassIdToClass(1, 1, _dbit, "DBIT", InterestRateType.FixedRate);
-        updateClassIdToClass(2, 1, _testToken, "TEST", InterestRateType.FixedRate);
+        addClass(0, "D/BIT", InterestRateType.FixedRate, DBIT, SIX_M_PERIOD);
+        addClass(1, "USDC", InterestRateType.FixedRate, USDC, SIX_M_PERIOD);
+        addClass(2, "USDT", InterestRateType.FixedRate, USDT, SIX_M_PERIOD);
+        addClass(3, "DAI", InterestRateType.FixedRate, DAI, SIX_M_PERIOD);
 
-        tokenAllowed[_dbit][_testToken] = true;
-        tokenAllowed[_testToken][_dbit] = true;
+        purchasableClasses[0].push(1);
+        purchasableClasses[0].push(2);
+        purchasableClasses[0].push(3);
+        debondClasses.push(0);
+
+        (address token1, address token2) = CDP.sortTokens(DBIT,USDC);
+        tokenAllowed[token1][token2] = true;
+
+        (token1, token2) = CDP.sortTokens(DBIT,USDT);
+        tokenAllowed[token1][token2] = true;
+
+        (token1, token2) = CDP.sortTokens(DBIT,DAI);
+        tokenAllowed[token1][token2] = true;
+        
 
     }
 
+    /**
+     * @notice this method should only be called by the governance contract TODO Only Governance
+     */
+    function addClass(uint classId, string memory symbol, InterestRateType interestRateType, address tokenAddress, uint periodTimestamp) public override {
+        Class storage class = classes[classId];
+        require(!class.exists, "DebondData: cannot add an existing classId");
+        class.id = classId;
+        class.exists = true;
+        class.symbol = symbol;
+        class.interestRateType = interestRateType;
+        class.tokenAddress = tokenAddress;
+        class.periodTimestamp = periodTimestamp;
 
+        // should maybe add an event
+    }
+
+    // TODO Only Governance
     function updateTokenAllowed (
         address tokenA,
         address tokenB,
         bool allowed
-    ) external override { //verify why override needed
+    ) external override {
         tokenAllowed[tokenA][tokenB] = allowed;
+        tokenAllowed[tokenB][tokenA] = allowed;
     }
 
     function isPairAllowed (
-        address tokenA,
-        address tokenB) external view returns (bool) {
+        address _tokenA,
+        address _tokenB) public view returns (bool) {
+        (address tokenA, address tokenB) = sortTokens(_tokenA, _tokenB);
         return tokenAllowed[tokenA][tokenB];
     }
 
-    function classIdToInfos(
+    function getClassFromId(
         uint classId
-    ) external view returns(uint period, address tokenAddress, InterestRateType interestRateType) {
-        Class storage class = classIdToClass[classId];
-        period = class.period;
+    ) external view returns(string memory symbol, InterestRateType interestRateType, address tokenAddress, uint periodTimestamp) {
+        Class storage class = classes[classId];
+        symbol = class.symbol;
+        periodTimestamp = class.periodTimestamp;
         tokenAddress = class.tokenAddress;
         interestRateType = class.interestRateType;
-        return (period, tokenAddress, interestRateType);
+        return (symbol, interestRateType, tokenAddress, periodTimestamp);
+    }
+
+    // TODO Only Bank
+    function getLastNonceCreated(uint classId) external view returns(uint nonceId, uint createdAt) {
+        Class storage class = classes[classId];
+        require(class.exists, "Debond Data: class id given not found");
+        nonceId = class.lastNonceIdCreated;
+        createdAt = class.lastNonceIdCreatedTimestamp;
+        return (nonceId, createdAt);
+    }
+
+    // TODO Only Bank
+    function updateLastNonce(uint classId, uint nonceId, uint createdAt) external {
+        Class storage class = classes[classId];
+        require(class.exists, "Debond Data: class id given not found");
+        class.lastNonceIdCreated = nonceId;
+        class.lastNonceIdCreatedTimestamp = createdAt;
+    }
+
+    function sortTokens(address tokenA, address tokenB) internal pure returns (address token0, address token1) {
+        require(tokenA != tokenB, 'DebondLibrary: IDENTICAL_ADDRESSES');
+        (token0, token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
+        require(token0 != address(0), 'DebondLibrary: ZERO_ADDRESS');
     }
 
 
