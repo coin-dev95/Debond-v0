@@ -19,6 +19,7 @@ pragma solidity 0.8.13;
 import './APM.sol';
 import './DebondData.sol';
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interfaces/IAPM.sol";
 import "./interfaces/IData.sol";
 import "./interfaces/IDebondBond.sol";
@@ -29,6 +30,7 @@ import "./libraries/CDP.sol";
 contract Bank {
 
     using CDP for uint256;
+    using SafeERC20 for IERC20;
 
     IAPM apm;
     IData debondData;
@@ -78,7 +80,7 @@ contract Bank {
 //        require(debondTokenMinAmount <= amountBToMint, "Not enough debond token in minting calculation");
 
 
-        IERC20(purchaseTokenAddress).transferFrom(msg.sender, address(apm), purchaseTokenAmount);
+        IERC20(purchaseTokenAddress).safeTransferFrom(msg.sender, address(apm), purchaseTokenAmount);
         //see uniswap : transferhelper,ierc202
         IDebondToken(debondTokenAddress).mint(address(apm), amountBToMint);
         // be aware that tokenB is a DebondToken, maybe add it to the class model
@@ -118,7 +120,7 @@ contract Bank {
         //require(reserves[TokenAddress]>amountIn);
 
 
-	    IERC20(TokenAddress).transferFrom(address(apm), msg.sender, amountIn);
+	    IERC20(TokenAddress).safeTransferFrom(address(apm), msg.sender, amountIn);
 
         //how do we know if we have to burn dbit or dbgt?
 
