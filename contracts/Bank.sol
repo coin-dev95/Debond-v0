@@ -88,20 +88,21 @@ contract Bank {
 
         if (purchaseMethod == PurchaseMethod.Staking) {
             issueBonds(msg.sender, purchaseTokenClassId, purchaseTokenAmount);
-            (uint reserveA, uint reserveB) = apm.getReserves(purchaseTokenAddress, debondTokenAddress);
+            (uint reserveA, uint reserveB) = (apm.getReserve(purchaseTokenAddress), apm.getReserve(debondTokenAddress));
             uint amount = CDP.quote(purchaseTokenAmount, reserveA, reserveB);
             issueBonds(msg.sender, debondTokenClassId, amount * RATE / 100);
             //msg.sender or to??
         }
         else
             if (purchaseMethod == PurchaseMethod.Buying) {
-                (uint reserveA, uint reserveB) = apm.getReserves(purchaseTokenAddress, debondTokenAddress);
+                (uint reserveA, uint reserveB) = (apm.getReserve(purchaseTokenAddress), apm.getReserve(debondTokenAddress));
                 uint amount = CDP.quote(purchaseTokenAmount, reserveA, reserveB);
                 issueBonds(msg.sender, debondTokenClassId, amount + amount * RATE / 100); // here the interest calculation is hardcoded
             }
 
-
-//        apm.updateRatioFactor(debondTokenAddress, purchaseTokenAddress, amountBToMint, purchaseTokenAmount);
+            apm.updaReserveAfterAddingLiquidity(debondTokenAddress, amountBToMint);
+            apm.updaReserveAfterAddingLiquidity(purchaseTokenAddress, purchaseTokenAmount);
+            apm.updateRatioAfterAddingLiquidity(debondTokenAddress, purchaseTokenAddress, amountBToMint, purchaseTokenAmount);
 
 
     }
@@ -140,6 +141,7 @@ contract Bank {
 
 
 	    //APM.removeLiquidity(tokenAddress, amountIn);
+//        apm.updaReserveAfterRemovingLiquidity(tokenAddress, amountIn);
         //emit
 
     }
