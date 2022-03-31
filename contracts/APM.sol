@@ -118,41 +118,6 @@ contract APM is IAPM {
 		price[token1][token0] = _ratio01[1].mul0(_reserve1).div(denominator1);
 
 		return (price[token0][token1], price[token1][token0]);
-	}
-
-    /*function addLiquidity(
-        //address to    verify we do not need this 
-        address tokenA,
-        address tokenB
-        )
-        external  { 
-        (uint112 _reserve0, uint112 _reserve1) = getReserves(tokenA, tokenB);  
-        
-        //(uint reserve0Total, uint reserve1Total) = (totalBalances[tokenA], totalBalances[tokenB]);
-       
-        uint balance0Total = IERC20(tokenA).balanceOf(address(this));
-        uint balance1Total = IERC20(tokenB).balanceOf(address(this));
-
-
-        uint amount0 = balance0Total - reserve0Total; //verify math
-        uint amount1 = balance1Total - reserve1Total;
-        
-        _update(_reserve0 + amount0, _reserve1 + amount1, tokenA, tokenB); 
-        
-    }
-
-    function remove_liquidity(
-        address tokenAddress,
-        address to,
-        uint amount
-    ) public {
-        IERC20(tokenAddress).transferfrom(address(bank), to, amount);
-
-        //update ratios
-    }
-    */
-
-
-    
+	}    
 }
 
