@@ -134,8 +134,10 @@ contract Bank {
         }
 
 
+
 	    
         //how do we know if we have to burn (or put in reserves) dbit or dbgt?
+
 
 	    //APM.removeLiquidity(tokenAddress, amountIn);
         //emit
@@ -143,6 +145,7 @@ contract Bank {
     }
 
     // **** Swaps ****
+
 
 
 
