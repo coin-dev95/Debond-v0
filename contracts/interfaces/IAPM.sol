@@ -16,32 +16,45 @@ pragma solidity 0.8.13;
 
 interface IAPM {
 
-    function updateRatioFactor( 
-		address token0,
-		address token1,
-		uint256 amount0,
-		uint256 amount1
-	) external returns(uint256 ratio01, uint256 ratio10);
+    function updaReserveAfterAddingLiquidity(
+        address _token0,
+        address _token1,
+        uint256 _amount0,
+        uint256 _amount1
+    ) external;
 
-    function updatePrice(
-        address token0,
-        address token1
-    ) external returns(uint256 price0, uint256 price1);
+    function updaReserveAfterRemovingLiquidity(
+        address _token0,
+        address _token1,
+        uint256 _amount0,
+        uint256 _amount1
+    ) external;
 
-    function updateReserves(
-        address token0,
-        address token1,
-        uint256 amount0,
-        uint256 amount1
+    function updateRatioAfterAddingLiquidity(
+        address _token0,
+        address _token1,
+        uint256 _amount0,
+        uint256 _amount1
+    ) external;
+
+    function updateRatioAfterRemovingLiquidity(
+        address _token0,
+        address _token1,
+        uint256 _amount0,
+        uint256 _amount1
     ) external;
 
     function getReserves(
-        address token0,
-        address token1
-    ) external view returns(uint256 reserve0, uint256 reserve1);
+        address _token
+    ) external view returns(uint256 _reserve);
 
-    function getPreviousReserves(
-        address token0,
-        address token1
-    ) external view returns(uint256 reserve0, uint256 reserve1);
+    function getRatios(
+        address _token0,
+        address _token1
+    ) external view returns(uint256 _ratio01, uint256 _ratio10);
+
+    function getPrices(
+        address _token0,
+        address _token1
+    ) external view returns(uint256 _price01, uint256 _price10);
 }
