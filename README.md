@@ -1,26 +1,25 @@
-Verifying DAI
-Pass - Verified: https://rinkeby.etherscan.io/address/0x230e51A0126b7ef6E1Eb16C9dC84F8B7C2D22Ec6#code
-
-Verifying DBIT
-Pass - Verified: https://rinkeby.etherscan.io/address/0x893d049E49b8Ad8aE631d925d4B5136486ca7ceA#code
-
-Verifying USDC
-Pass - Verified: https://rinkeby.etherscan.io/address/0x288E24F08a94E3750bCE2D22301895D30443a20f#code
-
-Verifying USDT
-Pass - Verified: https://rinkeby.etherscan.io/address/0x6865C2313a7B57FE3000FE9743f849EaAAFD5eD7#code
-
-Verifying DebondData
-Pass - Verified: https://rinkeby.etherscan.io/address/0x0A3aC128400739140B387Cb44dB86dAa29900cc3#code
-
-Verifying APM
-Pass - Verified: https://rinkeby.etherscan.io/address/0x2B98a596B67a8a62bb86355eD85eA7E79e201B71#code
-
-Verifying DebondBond
-Contract source code already verified: https://rinkeby.etherscan.io/address/0xfB9a8e91AdBdE6C608F662309b403875bd7740aD#code
-
-Verifying Bank
-Contract source code already verified: https://rinkeby.etherscan.io/address/0x3B5965643c546De23b57639756aB39c2378edA76#code
+##RINKEBY DEPLOYED CONTRACTS
 
 
+##D/BIT: 
+https://rinkeby.etherscan.io/address/0xb313dAd95fa64D4C2e316b7E649c10734901ddB1
 
+##USDC: 
+https://rinkeby.etherscan.io/address/0x6c7a973480B2d093581866cA615Fb9C885E32aA1
+
+##USDT: 
+https://rinkeby.etherscan.io/address/0x402d196b07a61D177C7665055F09D04A956A3A9c
+
+##DebondBond: 
+https://rinkeby.etherscan.io/address/0x754C65BF07276970C30f3d10A2FcD8D35811c078
+
+##DebondData: 
+https://rinkeby.etherscan.io/address/0x573755a641cA33E70C5dF6e09E641F204a27a4e2
+
+##APM: 
+https://rinkeby.etherscan.io/address/0x46a840aF3B867e550b7c241d59ba5e4397F20349
+
+##Bank:
+https://rinkeby.etherscan.io/address/0xF91bedE22D9693F70e0a2Af94E8DAd7f3D745006
+
+Successfully verified 8 contract(s).

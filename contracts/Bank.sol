@@ -19,6 +19,7 @@ pragma solidity 0.8.13;
 import './APM.sol';
 import './DebondData.sol';
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interfaces/IAPM.sol";
 import "./interfaces/IData.sol";
 import "./interfaces/IDebondBond.sol";
@@ -29,6 +30,7 @@ import "./libraries/CDP.sol";
 contract Bank {
 
     using CDP for uint256;
+    using SafeERC20 for IERC20;
 
     IAPM apm;
     IData debondData;
@@ -63,7 +65,6 @@ contract Bank {
         uint debondTokenClassId = _debondTokenClassId;
         uint purchaseTokenAmount = _purchaseTokenAmount;
         uint debondTokenMinAmount = _debondTokenMinAmount;
-        uint nowTimestamp = block.timestamp;
         (,,address purchaseTokenAddress,) = debondData.getClassFromId(purchaseTokenClassId);
         (,,address debondTokenAddress,) = debondData.getClassFromId(debondTokenClassId);
 
@@ -79,24 +80,24 @@ contract Bank {
 //        require(debondTokenMinAmount <= amountBToMint, "Not enough debond token in minting calculation");
 
 
-        IERC20(purchaseTokenAddress).transferFrom(msg.sender, address(apm), purchaseTokenAmount);
+        IERC20(purchaseTokenAddress).safeTransferFrom(msg.sender, address(apm), purchaseTokenAmount);
         //see uniswap : transferhelper,ierc202
         IDebondToken(debondTokenAddress).mint(address(apm), amountBToMint);
         // be aware that tokenB is a DebondToken, maybe add it to the class model
 
 
         if (purchaseMethod == PurchaseMethod.Staking) {
-            bond.issue(msg.sender, purchaseTokenClassId, manageAndGetNonceId(purchaseTokenClassId, nowTimestamp), purchaseTokenAmount);
+            issueBonds(msg.sender, purchaseTokenClassId, purchaseTokenAmount);
             (uint reserveA, uint reserveB) = apm.getReserves(purchaseTokenAddress, debondTokenAddress);
             uint amount = CDP.quote(purchaseTokenAmount, reserveA, reserveB);
-            bond.issue(msg.sender, debondTokenClassId, manageAndGetNonceId(debondTokenClassId, nowTimestamp), amount * RATE / 100);
+            issueBonds(msg.sender, debondTokenClassId, amount * RATE / 100);
             //msg.sender or to??
         }
         else
             if (purchaseMethod == PurchaseMethod.Buying) {
                 (uint reserveA, uint reserveB) = apm.getReserves(purchaseTokenAddress, debondTokenAddress);
                 uint amount = CDP.quote(purchaseTokenAmount, reserveA, reserveB);
-                bond.issue(msg.sender, debondTokenClassId, manageAndGetNonceId(purchaseTokenClassId, nowTimestamp), amount + amount * RATE / 100); // here the interest calculation is hardcoded
+                issueBonds(msg.sender, debondTokenClassId, amount + amount * RATE / 100); // here the interest calculation is hardcoded
             }
 
 
@@ -120,8 +121,7 @@ contract Bank {
         //require(reserves[TokenAddress]>amountIn);
 
 
-	    IERC20(TokenAddress).transferFrom(address(apm), msg.sender, amount);
-	    
+	    IERC20(TokenAddress).safeTransferFrom(address(apm), msg.sender, amount);
         //how do we know if we have to burn dbit or dbgt?
 
 	    //APM.removeLiquidity(tokenAddress, amountIn);
@@ -134,7 +134,7 @@ contract Bank {
 
 
 
-    
+
     // TODO External to the Bank maybe
     function calculateDebondTokenToMint(
 //        address purchaseTokenAddress, // token added
@@ -153,27 +153,33 @@ contract Bank {
         return amountA;
     }
 
-    function manageAndGetNonceId(uint classId, uint timestampToCheck) private returns (uint) {
+    function issueBonds(address to, uint256 classId, uint256 amount) private {
+        manageNonceId(classId);
+        (uint nonceId,) = debondData.getLastNonceCreated(classId);
+        bond.issue(to, classId, nonceId, amount);
+    }
+
+    function manageNonceId(uint classId) private {
+        uint timestampToCheck = block.timestamp;
         (uint lastNonceId, uint createdAt) = debondData.getLastNonceCreated(classId);
         if ((timestampToCheck - createdAt) >= DIFF_TIME_NEW_NONCE) {
-            return createNewNonce(classId, lastNonceId, timestampToCheck);
+            createNewNonce(classId, lastNonceId, timestampToCheck);
+            return;
         }
 
         uint tDay = (timestampToCheck - BASE_TIMESTAMP) % DIFF_TIME_NEW_NONCE;
         if ((tDay + (timestampToCheck - createdAt)) >= DIFF_TIME_NEW_NONCE) {
-            return createNewNonce(classId, lastNonceId, timestampToCheck);
+            createNewNonce(classId, lastNonceId, timestampToCheck);
+            return;
         }
-
-        return lastNonceId;
     }
 
-    function createNewNonce(uint classId, uint lastNonceId, uint creationTimestamp) private returns (uint _newNonceId) {
-        _newNonceId = lastNonceId++;
-        debondData.updateLastNonce(classId, _newNonceId, creationTimestamp);
+    function createNewNonce(uint classId, uint lastNonceId, uint creationTimestamp) private {
+        uint _newNonceId = lastNonceId++;
         (,,, uint period) = debondData.getClassFromId(classId);
         bond.createNonce(classId, _newNonceId, creationTimestamp + period, 500);
+        debondData.updateLastNonce(classId, _newNonceId, creationTimestamp);
         //here 500 is liquidity info hard coded for now
-        return _newNonceId;
     }
 
 }

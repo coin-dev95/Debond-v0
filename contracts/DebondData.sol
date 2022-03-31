@@ -20,7 +20,7 @@ import './libraries/CDP.sol';
 
 contract DebondData is IData {
 
-    uint public constant SIX_M_PERIOD = 60; // 1 min period for tests
+    uint public constant SIX_M_PERIOD = 1; // 1 min period for tests
 
     struct Class {
         uint id;
@@ -38,7 +38,7 @@ contract DebondData is IData {
     mapping(address => mapping( address => bool)) public tokenAllowed;
 
     // data to be exclusively for the front end (for now)
-    mapping(uint => uint[]) purchasableClasses;
+    mapping(uint => uint[]) public purchasableClasses;
     uint[] debondClasses;
 
     constructor(
@@ -49,7 +49,7 @@ contract DebondData is IData {
 //        address governance
     ) {
 
-        addClass(0, "DBIT", InterestRateType.FixedRate, DBIT, SIX_M_PERIOD);
+        addClass(0, "D/BIT", InterestRateType.FixedRate, DBIT, SIX_M_PERIOD);
         addClass(1, "USDC", InterestRateType.FixedRate, USDC, SIX_M_PERIOD);
         addClass(2, "USDT", InterestRateType.FixedRate, USDT, SIX_M_PERIOD);
         addClass(3, "DAI", InterestRateType.FixedRate, DAI, SIX_M_PERIOD);
@@ -57,6 +57,7 @@ contract DebondData is IData {
         purchasableClasses[0].push(1);
         purchasableClasses[0].push(2);
         purchasableClasses[0].push(3);
+        debondClasses.push(0);
 
         (address token1, address token2) = CDP.sortTokens(DBIT,USDC);
         tokenAllowed[token1][token2] = true;
