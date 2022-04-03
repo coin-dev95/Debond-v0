@@ -69,7 +69,7 @@ contract Bank {
         (,,address debondTokenAddress,) = debondData.getClassFromId(debondTokenClassId);
 
 
-        require(debondData.isPairAllowed(purchaseTokenAddress, debondTokenAddress));
+        require(debondData.isPairAllowed(purchaseTokenAddress, debondTokenAddress), "Pair not Allowed");
 
         uint amountBToMint = calculateDebondTokenToMint(
 //            purchaseTokenAddress,
@@ -80,7 +80,7 @@ contract Bank {
 //        require(debondTokenMinAmount <= amountBToMint, "Not enough debond token in minting calculation");
 
 
-        IERC20(purchaseTokenAddress).safeTransferFrom(msg.sender, address(apm), purchaseTokenAmount);
+        IERC20(purchaseTokenAddress).transferFrom(msg.sender, address(apm), purchaseTokenAmount);
         //see uniswap : transferhelper,ierc202
         IDebondToken(debondTokenAddress).mint(address(apm), amountBToMint);
         // be aware that tokenB is a DebondToken, maybe add it to the class model
@@ -121,12 +121,8 @@ contract Bank {
         (, IData.InterestRateType interestRateType ,address TokenAddress,) = debondData.getClassFromId(_TokenClassId);
         //require(reserves[TokenAddress]>amountIn);
 
-        
-
         if(interestRateType == IData.InterestRateType.FixedRate) {
-            (,,,,,uint maturityDate) = bond.bondDetails( _TokenClassId, _TokenNonceId);
-            require(block.timestamp>maturityDate);
-            IERC20(TokenAddress).safeTransferFrom(address(apm), msg.sender, amount);
+            IERC20(TokenAddress).transferFrom(address(apm), msg.sender, amount);
 
 
         }

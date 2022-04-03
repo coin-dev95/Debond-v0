@@ -143,7 +143,7 @@ contract DebondBond is IDebondBond, AccessControl {
 
     function redeem(address from, uint256 classId, uint256 nonceId, uint256 amount) external override onlyRole(ISSUER_ROLE) {
         require(from != address(0), "ERC3475: can't transfer to the zero address");
-        require(isRedeemable(classId, nonceId));
+        require(isRedeemable(classId, nonceId), "Bond is not redeemable");
         _redeem(from, classId, nonceId, amount);
         emit Redeem(msg.sender, from, classId, nonceId, amount);
     }
