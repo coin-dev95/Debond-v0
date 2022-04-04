@@ -38,9 +38,9 @@ contract('Bank', async (accounts: string[]) => {
 
     })
 
-    it('sell Bonds', async () => {
+    it('redeem Bonds', async () => {
 
-        await bankContract.sellBonds(1,0, 17);
+        await bankContract.redeemBonds(1,0, 17);
 
         console.log("balance Bond D/BIT: AFTER " + (await bondContract.balanceOf(accounts[0], 0, 0)));
         console.log("balance Bond USDC : " + (await bondContract.balanceOf(accounts[0], 1, 0)));

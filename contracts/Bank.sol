@@ -107,9 +107,9 @@ contract Bank {
 
     }
 
-    // **** SELL BONDS ****
+    // **** REDEEM BONDS ****
 
-    function sellBonds(
+    function redeemBonds(
         uint _TokenClassId,
         uint _TokenNonceId,
         uint amount
